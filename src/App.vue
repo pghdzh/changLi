@@ -40,13 +40,11 @@ import navbar from "./components/navbar.vue";
 const showIntro = ref(true);
 const videoSrc = ref(""); // 新增
 const lines = [
-  "潮声为灯，静候归人",
-  "回声为路，等你归来",
-  "夜海回响，候你归帆",
-  "潮汐轻语，寄望远方",
-  "以潮为灯，守望回声",
-  "星潮作证，声留海间",
-  "共鸣之晶，静候唤醒",
+  "绯焰舞尽，长离不散。",
+  "焰影摇红，照见人间。",
+  "一缕离火，一曲清歌，一梦长离。",
+  "于炽热中诞生，在优雅中长存。",
+  "长离之焰，燃尽彷徨，照亮前路。"
 ] as const;
 
 const displayText = ref("");
@@ -167,11 +165,11 @@ onBeforeUnmount(() => {
         font-size: clamp(36px, 7.6vw, 58px);
         line-height: 1.1;
         color: #dff8ff;
-        /* 渐变文字（冰蓝） */
+      
         background: linear-gradient(
           90deg,
-          rgba(190, 245, 255, 0.95),
-          rgba(110, 220, 255, 0.9)
+          #ff6b35,
+          #ff9a66
         );
         -webkit-background-clip: text;
         background-clip: text;

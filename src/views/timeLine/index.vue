@@ -6,7 +6,7 @@
         <div class="left-col">
           <button class="avatar-card">
             <picture class="avatar-wrap">
-              <img src="@/assets/images1/1.webp" class="avatar" loading="lazy" decoding="async" />
+              <img src="@/assets/images1/slty1 (8).webp" class="avatar" loading="lazy" decoding="async" />
             </picture>
             <div class="avatar-meta">
               <span class="avatar-badge">共鸣能力：丹煌离火</span>

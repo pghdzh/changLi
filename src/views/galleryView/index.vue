@@ -206,7 +206,7 @@ const page = 1;
 const pageSize = 99;
 
 const fetchRanking = async () => {
-  const res = await getRankingList({ page, pageSize, character_key: "shou" });
+  const res = await getRankingList({ page, pageSize, character_key: "changLi" });
   if (res.success) {
     rankingList.value = res.data;
   } else {
@@ -253,7 +253,7 @@ async function loadNextPage() {
       page: pageImage.value,
       limit: limit.value,
       sortBy: sortBy.value,
-      character_key: "shou",
+      character_key: "changLi",
       order: order.value,
     });
     imgTotal.value = res.total;
@@ -415,7 +415,7 @@ async function submitUpload() {
     const res = await uploadImages(
       selectedFiles.value,
       nickname.value.trim(),
-      "shou"
+      "changLi"
     );
     const uploadedCount = res.data.length;
     // 更新 localStorage
@@ -462,7 +462,7 @@ onMounted(async () => {
     sentinelObserver.observe(sentinel.value);
   }
   // 1. 基础配置信息
-  const total = 9;
+  const total = 5;
   let pickCount = 3; // 每次抽取 3 张
   const vw = window.innerWidth;
   const vh = window.innerHeight;
@@ -623,13 +623,11 @@ $neon-pink: #ff66c4;
     .sort-controls {
       margin: 16px 0;
 
-      /* 守岸人风格的排序按钮（替换原 .sort-btn） */
       .sort-btn {
-        /* 基础布局（保留左侧装饰空间） */
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 10px 28px 10px 56px; /* 左侧留装饰 */
+        padding: 10px 28px 10px 56px;
         font-size: 1rem;
         line-height: 1;
         font-family: "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial,
@@ -640,24 +638,22 @@ $neon-pink: #ff66c4;
         overflow: hidden;
         border: 1px solid rgba(110, 200, 255, 0.06);
 
-        /* 守岸人：冰蓝晶体渐变 + 深海毛玻璃感 */
         background: linear-gradient(
           90deg,
-          rgba(11, 44, 58, 0.28) 0%,
-          rgba(8, 36, 48, 0.36) 50%,
-          rgba(6, 28, 36, 0.42) 100%
+          rgba(202, 158, 102, 0.28) 0%,
+          rgba(215, 172, 18, 0.36) 50%,
+          rgba(198, 88, 19, 0.42) 100%
         );
-        color: #cfeff8; /* 冰蓝文字 */
+        color: #ef9b51;
         box-shadow: 0 10px 28px rgba(0, 12, 18, 0.48),
-          /* 深海投影 */ inset 0 1px 0 rgba(255, 255, 255, 0.02),
-          /* 内高光 */ 0 0 18px rgba(80, 200, 240, 0.04); /* 冰蓝光晕 */
+          inset 0 1px 0 rgba(255, 255, 255, 0.02),
+          0 0 18px rgba(80, 200, 240, 0.04);
 
         transition: transform 200ms cubic-bezier(0.2, 0.9, 0.25, 1),
           box-shadow 200ms ease, background 260ms ease, color 160ms ease,
           filter 200ms ease;
         -webkit-tap-highlight-color: transparent;
 
-        /* 左侧晶体装饰（替代原花瓣） */
         &::after {
           content: "";
           position: absolute;
@@ -669,26 +665,25 @@ $neon-pink: #ff66c4;
           border-radius: 4px;
           background: linear-gradient(
             180deg,
-            rgba(191, 247, 255, 0.95),
-            rgba(110, 220, 255, 0.9)
+            rgba(255, 228, 191, 0.95),
+            rgba(255, 178, 110, 0.9)
           );
           box-shadow: 0 6px 18px rgba(40, 140, 170, 0.12),
             inset 0 1px 0 rgba(255, 255, 255, 0.5);
-          clip-path: polygon(50% 0, 75% 25%, 50% 100%, 25% 25%); /* 菱形/晶体 */
+          clip-path: polygon(50% 0, 75% 25%, 50% 100%, 25% 25%);
           pointer-events: none;
           z-index: 3;
           transition: transform 220ms ease, opacity 220ms ease,
             box-shadow 220ms ease;
         }
 
-        /* hover：微抬起，晶体发光 */
         &:hover {
           transform: translateY(-5px) scale(1.02);
           box-shadow: 0 22px 66px rgba(0, 18, 24, 0.62),
             0 0 44px rgba(80, 200, 240, 0.14),
             inset 0 2px 8px rgba(255, 255, 255, 0.03);
           filter: saturate(1.08) brightness(1.03);
-          color: #12b3d3;
+          color: #d35512;
           background: linear-gradient(
             90deg,
             rgba(12, 54, 70, 0.38) 0%,
@@ -923,7 +918,6 @@ $neon-pink: #ff66c4;
   }
 
   .upload-btn {
-    /* 位置与布局保持不变 */
     position: fixed;
     bottom: 64px;
     left: 24px;
@@ -938,13 +932,12 @@ $neon-pink: #ff66c4;
     cursor: pointer;
     user-select: none;
 
-    /* 守岸人 — 冰蓝晶体 + 深海毛玻璃 */
-    color: #022b33; /* 深色文字以保证在浅色晶核上可读 */
+    color: #022b33;
     background: linear-gradient(
       90deg,
-      rgba(191, 247, 255, 0.96) 0%,
-      rgba(110, 223, 255, 0.92) 50%,
-      rgba(46, 170, 200, 0.96) 100%
+      rgba(255, 223, 191, 0.96) 0%,
+      rgba(255, 187, 110, 0.92) 50%,
+      rgba(200, 105, 46, 0.96) 100%
     );
     border-radius: 28px;
 
@@ -975,12 +968,12 @@ $neon-pink: #ff66c4;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* 深海暗色 + 微光星尘，突出弹窗并契合守岸人基调 */
     background: linear-gradient(
       180deg,
       rgba(2, 10, 16, 0.78),
       rgba(3, 18, 28, 0.62)
     );
+
     backdrop-filter: blur(10px) saturate(1.08);
     -webkit-backdrop-filter: blur(10px) saturate(1.08);
 
@@ -1015,8 +1008,8 @@ $neon-pink: #ff66c4;
     /* 背景：半透明深蓝毛玻璃，内侧有冰蓝高光 */
     background: linear-gradient(
       180deg,
-      rgba(6, 28, 40, 0.82),
-      rgba(4, 20, 30, 0.78)
+      rgba(40, 24, 6, 0.82),
+      rgba(30, 18, 4, 0.78)
     );
     border: 1px solid rgba(110, 200, 255, 0.06);
     backdrop-filter: blur(8px) saturate(120%);
@@ -1245,7 +1238,6 @@ $neon-pink: #ff66c4;
     font-family: "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial,
       sans-serif;
 
-    /* 深海毛玻璃基底 + 晶体光晕 */
     background: linear-gradient(
       180deg,
       rgba(4, 22, 34, 0.78),
@@ -1263,7 +1255,6 @@ $neon-pink: #ff66c4;
       padding-bottom: 8px;
     }
 
-    /* panel header */
     .panel-header {
       display: flex;
       justify-content: space-between;
@@ -1276,7 +1267,7 @@ $neon-pink: #ff66c4;
         margin: 0;
         font-size: 1.05rem;
         font-weight: 900;
-        color: #bff7ff; /* 冰蓝高光 */
+        color: rgb(239, 196, 143); /* 冰蓝高光 */
         font-family: "Zhi Mang Xing", "STKaiti", serif;
         letter-spacing: 0.6px;
         text-shadow: 0 6px 18px rgba(10, 80, 110, 0.18);
@@ -1284,11 +1275,11 @@ $neon-pink: #ff66c4;
 
       .toggle-icon {
         font-size: 1rem;
-        color: #bff7ff;
+        color: #ebbf7d;
         background: linear-gradient(
           180deg,
-          rgba(12, 40, 52, 0.5),
-          rgba(10, 30, 40, 0.36)
+          rgba(52, 41, 12, 0.5),
+          rgba(40, 28, 10, 0.36)
         );
         padding: 6px 8px;
         border-radius: 9px;
@@ -1314,8 +1305,8 @@ $neon-pink: #ff66c4;
       &::-webkit-scrollbar-thumb {
         background: linear-gradient(
           180deg,
-          rgba(80, 180, 210, 0.16),
-          rgba(60, 140, 170, 0.12)
+          rgba(210, 117, 80, 0.16),
+          rgba(170, 122, 60, 0.12)
         );
         border-radius: 8px;
         border: 1px solid rgba(255, 255, 255, 0.02);

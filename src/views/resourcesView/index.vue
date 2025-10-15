@@ -1,9 +1,27 @@
 <template>
   <div class="yuzuki-resources">
+    <div class="carousel carousel1" aria-hidden="true">
+      <img
+        v-for="(src, idx) in randomFive"
+        :key="idx"
+        :src="src"
+        class="carousel-image"
+        :class="{ active: idx === currentIndex }"
+      />
+    </div>
+    <div class="carousel carousel2" aria-hidden="true">
+      <img
+        v-for="(src, idx) in randomFive2"
+        :key="idx"
+        :src="src"
+        class="carousel-image"
+        :class="{ active: idx === currentIndex }"
+      />
+    </div>
     <header class="hero">
       <div class="hero-inner">
         <h1>资源分享</h1>
-        <p class="subtitle">可自由上传关于岸宝的相关链接</p>
+        <p class="subtitle">可自由上传关于长离的相关链接</p>
       </div>
     </header>
 
@@ -128,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 // 如果你的工程使用 ts 路径别名 @ 指向 src，可以用 '@/api/resource'，否则根据实际路径调整
 import {
   getResourceList,
@@ -148,8 +166,8 @@ interface Resource {
   role_key?: string;
 }
 
-const STORAGE_KEY = "shou_resources_v1";
-const DEFAULT_ROLE = "shou";
+const STORAGE_KEY = "changLi_resources_v1";
+const DEFAULT_ROLE = "changLi";
 
 const form = ref<{
   title: string;
@@ -231,14 +249,47 @@ function saveLocalCache() {
   }
 }
 
+// ========== 背景图片导入与轮播 ==========
+const modules = import.meta.glob("@/assets/images1/*.{jpg,png,jpeg,webp}", {
+  eager: true,
+});
+const allSrcs: string[] = Object.values(modules).map((mod: any) => mod.default);
+
+const modules2 = import.meta.glob("@/assets/images2/*.{jpg,png,jpeg,webp}", {
+  eager: true,
+});
+const allSrcs2: string[] = Object.values(modules2).map(
+  (mod: any) => mod.default
+);
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const randomFive = ref<string[]>(shuffle(allSrcs).slice(0, 5));
+const randomFive2 = ref<string[]>(shuffle(allSrcs2).slice(0, 5));
+
+const currentIndex = ref(0);
+let Imgtimer: number | undefined;
+
 onMounted(() => {
   loadResources();
-  // 移动端默认收起上传区以节省空间
+  Imgtimer = window.setInterval(() => {
+    currentIndex.value =
+      (currentIndex.value + 1) % Math.max(1, randomFive.value.length);
+  }, 5200);
   uploaderCollapsed.value = window.innerWidth <= 640;
 });
 function toggleUploader() {
   uploaderCollapsed.value = !uploaderCollapsed.value;
 }
+onBeforeUnmount(() => {
+  if (Imgtimer) clearInterval(Imgtimer);
+});
 
 async function addResource() {
   const t = form.value.title.trim();
@@ -348,27 +399,61 @@ function formatTime(iso: string) {
 
 <style lang="scss" scoped>
 .yuzuki-resources {
-  min-height: 100vh;
-  /* 深海到冰蓝的渐变背景 */
-  background: linear-gradient(145deg, #031726 0%, #052f47 40%, #063a56 100%);
+  background: linear-gradient(135deg, #e2a088 0%, #e38d79 45%, #a14b2b 100%);
   color: #dff8ff;
   display: flex;
   flex-direction: column;
-  padding-top: 70px;
+  padding-top: 60px;
   font-family: "Noto Sans SC", "PingFang SC", "Helvetica Neue", Arial,
     sans-serif;
   -webkit-font-smoothing: antialiased;
+  .carousel {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
 
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(2, 8, 14, 0.15),
+        rgba(2, 8, 14, 0.25)
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .carousel-image {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      filter: blur(0.8px) saturate(0.92);
+      &.active {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  }
+
+  /* 可在小屏使用第二组竖图，避免裁切失衡 */
+  .carousel2 {
+    display: none;
+  }
   /* 顶区 hero（深海毛玻璃面板） */
   .hero {
     padding: 18px 12px;
     background: linear-gradient(
       180deg,
-      rgba(6, 28, 40, 0.64),
-      rgba(4, 20, 30, 0.52)
+      rgba(40, 29, 6, 0.64),
+      rgba(30, 20, 4, 0.52)
     );
-    -webkit-backdrop-filter: blur(8px) saturate(120%);
-    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(2px) saturate(120%);
+    backdrop-filter: blur(2px) saturate(120%);
     border-bottom: 1px solid rgba(110, 200, 255, 0.04);
 
     .hero-inner {
@@ -385,23 +470,13 @@ function formatTime(iso: string) {
         width: auto;
         font-weight: 900;
         letter-spacing: 0.6px;
-        /* 冰晶渐变文字 */
-        background: linear-gradient(
-          90deg,
-          #bff7ff 0%,
-          #66dff0 45%,
-          #2aa7c7 90%
-        );
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        -webkit-text-fill-color: transparent;
+        color: #ff6b35;
         text-shadow: 0 6px 20px rgba(0, 30, 40, 0.28);
       }
 
       .subtitle {
         margin-top: 6px;
-        color: rgba(190, 245, 255, 0.9);
+        color: rgba(255, 227, 190, 0.9);
         font-size: 13px;
       }
     }
@@ -413,19 +488,13 @@ function formatTime(iso: string) {
     padding: 0 12px;
     width: 100%;
     box-sizing: border-box;
-
+    z-index: 99;
     /* 上传区（深海毛玻璃 + 冰蓝高光） */
     .uploader {
-      background: linear-gradient(
-        180deg,
-        rgba(6, 30, 40, 0.6),
-        rgba(4, 20, 30, 0.56)
-      );
       border-radius: 14px;
       padding: 0;
       box-shadow: 0 18px 56px rgba(0, 10, 16, 0.6);
       border: 1px solid rgba(110, 200, 255, 0.04);
-      overflow: hidden;
 
       .uploader-head {
         display: flex;
@@ -435,7 +504,7 @@ function formatTime(iso: string) {
         .toggle {
           background: transparent;
           border: 1px solid rgba(110, 200, 255, 0.06);
-          color: #bff7ff;
+          color: #ff9a66;
           padding: 6px 10px;
           border-radius: 8px;
           cursor: pointer;
@@ -461,14 +530,14 @@ function formatTime(iso: string) {
             flex: 1 1 0;
             padding: 10px 12px;
             border-radius: 10px;
-            border: 1px solid rgba(60, 140, 170, 0.06);
+            border: 1px solid rgba(204, 113, 61, 0.06);
             font-size: 14px;
             background: linear-gradient(
               180deg,
-              rgba(3, 18, 26, 0.6),
-              rgba(6, 30, 40, 0.64)
+              rgba(26, 16, 3, 0.22),
+              rgba(40, 28, 6, 0.14)
             );
-            color: rgba(210, 245, 255, 0.96);
+            color: #f8c2a7;
             outline: none;
             transition: box-shadow 0.16s, border-color 0.16s, transform 0.08s;
             box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.45);
@@ -480,7 +549,7 @@ function formatTime(iso: string) {
 
           input:focus,
           select:focus {
-            border-color: rgba(110, 200, 255, 0.36);
+            border-color: rgba(255, 170, 110, 0.36);
             box-shadow: 0 12px 36px rgba(40, 140, 180, 0.08);
             transform: translateY(-1px);
           }
@@ -501,9 +570,9 @@ function formatTime(iso: string) {
             &.primary {
               background: linear-gradient(
                 135deg,
-                #bff7ff 0%,
-                #66dff0 55%,
-                #2aa7c7 100%
+                #f5e8dc 0%,
+                #ff9a66 55%,
+                #ff6b35 100%
               );
               color: #022a32;
               box-shadow: 0 12px 36px rgba(20, 110, 140, 0.12);
@@ -546,7 +615,7 @@ function formatTime(iso: string) {
         h2 {
           font-size: 16px;
           margin: 0;
-          color: #bff7ff;
+          color: #ff6b35;
           font-weight: 800;
         }
 
@@ -559,7 +628,7 @@ function formatTime(iso: string) {
             rgba(6, 30, 40, 0.58),
             rgba(4, 20, 30, 0.56)
           );
-          color: rgba(200, 235, 245, 0.95);
+          color: #f7b096;
         }
       }
 
@@ -567,13 +636,8 @@ function formatTime(iso: string) {
         list-style: none;
         padding: 0;
         margin: 0;
-
+        max-height: 60vh;
         .item {
-          background: linear-gradient(
-            180deg,
-            rgba(8, 30, 40, 0.56),
-            rgba(6, 26, 34, 0.5)
-          );
           border-radius: 12px;
           padding: 12px;
           margin-bottom: 12px;
@@ -590,7 +654,7 @@ function formatTime(iso: string) {
 
           .title {
             display: block;
-            color: #e6fbff;
+            color: #ffede6;
             font-weight: 800;
             text-decoration: none;
             margin-bottom: 8px;
@@ -604,7 +668,7 @@ function formatTime(iso: string) {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: rgba(170, 210, 225, 0.9);
+
             font-size: 13px;
 
             .left {
@@ -613,7 +677,7 @@ function formatTime(iso: string) {
               gap: 8px;
 
               .uploader {
-                color: #9eeeff;
+                color: #ff9a66;
                 font-weight: 700;
               }
 
@@ -622,7 +686,7 @@ function formatTime(iso: string) {
               }
 
               time {
-                color: rgba(170, 210, 225, 0.9);
+                color: #f5e8dc;
               }
             }
 
@@ -631,8 +695,7 @@ function formatTime(iso: string) {
               align-items: center;
               gap: 8px;
 
-              .like-btn,
-              .copy-btn {
+              .like-btn {
                 background: transparent;
                 border: none;
                 cursor: pointer;
@@ -643,7 +706,7 @@ function formatTime(iso: string) {
                 align-items: center;
                 gap: 6px;
                 transition: transform 0.08s, background 0.12s;
-                color: rgba(190, 245, 255, 0.95);
+                color: rgba(255, 221, 190, 0.95);
               }
 
               .like-btn:hover {
@@ -657,11 +720,11 @@ function formatTime(iso: string) {
                 filter: grayscale(100%) opacity(0.9);
               }
 
-              /* active 时，显示冰蓝发光 */
+             
               .like-btn.active .heart-icon {
                 filter: none;
                 transform: scale(1.03);
-                box-shadow: 0 6px 20px rgba(80, 200, 240, 0.12);
+                box-shadow: 0 6px 20px rgba(240, 163, 80, 0.12);
               }
 
               .badge {
@@ -671,20 +734,27 @@ function formatTime(iso: string) {
                 font-weight: 700;
                 background: linear-gradient(
                   180deg,
-                  rgba(80, 200, 240, 0.12),
-                  rgba(30, 120, 160, 0.06)
+                  rgba(240, 173, 80, 0.12),
+                  rgba(160, 106, 30, 0.06)
                 );
-                color: #bff7ff;
+                color: #ff9a66;
                 border: 1px solid rgba(80, 200, 240, 0.06);
               }
             }
           }
         }
+        .item:hover {
+          background: linear-gradient(
+            180deg,
+            rgba(8, 30, 40, 0.56),
+            rgba(6, 26, 34, 0.5)
+          );
+        }
       }
 
       .empty {
         text-align: center;
-        color: rgba(170, 210, 225, 0.9);
+        color: #ff6b35;
         padding: 28px 0;
       }
     }
@@ -700,7 +770,13 @@ function formatTime(iso: string) {
   /* 响应式：移动端优化（守岸人收敛） */
   @media (max-width: 640px) {
     padding-top: 80px;
+    .carousel1 {
+      display: none;
+    }
 
+    .carousel2 {
+      display: block;
+    }
     .hero {
       padding: 12px 10px;
 
@@ -733,7 +809,5 @@ function formatTime(iso: string) {
       white-space: normal; /* 移动端允许标题换行以提高可读性 */
     }
   }
-
-
 }
 </style>
