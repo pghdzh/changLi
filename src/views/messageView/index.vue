@@ -1,21 +1,30 @@
 <template>
   <div class="megumi-message-board" aria-live="polite">
+
+    <!-- 背景轮播（两组用于桌面/移动不同裁切） -->
+    <div class="carousel carousel1" aria-hidden="true">
+      <img v-for="(src, idx) in randomFive" :key="idx" :src="src" class="carousel-image"
+        :class="{ active: idx === currentIndex }" />
+    </div>
+    <div class="carousel carousel2" aria-hidden="true">
+      <img v-for="(src, idx) in randomFive2" :key="idx" :src="src" class="carousel-image"
+        :class="{ active: idx === currentIndex }" />
+    </div>
     <!-- 半透明顶部标题 -->
     <header class="board-header" role="banner">
       <div class="title-wrap">
         <h1>留言板</h1>
         <span class="title-count">（共{{ count }}条）</span>
 
-        <p class="subtitle">潮汐轻语，寄望远方</p>
+        <p class="subtitle">寄一纸焚愿，留一句余烬暖言</p>
       </div>
     </header>
 
     <!-- 留言展示区 -->
     <section class="message-list">
       <transition-group name="msg" tag="div" class="message-list-inner">
-        <!-- skeleton loading -->
         <div v-if="loading" class="skeleton-wrap" key="skeleton">
-          <div class="skeleton" v-for="i in 4" :key="i">
+          <div class="skeleton" v-for="i in 1" :key="i">
             <div class="sk-avatar"></div>
             <div class="sk-lines">
               <div class="sk-line short"></div>
@@ -23,17 +32,8 @@
             </div>
           </div>
         </div>
-
-        <!-- messages -->
-        <div
-          v-for="(msg, idx) in messages"
-          :key="msg.id || msg._tempId || idx"
-          class="message-card"
-          :data-index="idx"
-          tabindex="0"
-          role="article"
-          :aria-label="`留言来自 ${msg.name || '匿名'}，内容：${msg.content}`"
-        >
+        <div v-for="(msg, idx) in messages" :key="msg.id || msg._tempId || idx" class="message-card" :data-index="idx"
+          tabindex="0" role="article" :aria-label="`留言来自 ${msg.name || '匿名'}，内容：${msg.content}`">
           <div class="message-meta">
             <div class="left-meta">
               <div class="name-avatar" :title="msg.name || '匿名'">
@@ -45,35 +45,25 @@
               </div>
             </div>
             <!-- HTML：把 id/class 复制到对应位置 -->
-            <div
-              class="shouan-icon"
-              role="button"
-              tabindex="0"
-              aria-label="共鸣之晶"
-            >
-              <svg
-                viewBox="0 0 48 48"
-                width="36"
-                height="36"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <!-- 外层晶格 -->
-                <g class="crystal-frame">
-                  <path d="M24 4 L36 12 L40 26 L30 38 L18 38 L8 26 L12 12 Z" />
+            <div class="shouan-icon" role="button" tabindex="0" aria-label="共鸣之晶">
+              <!-- 替换用：焰棋徽（aria-hidden） -->
+              <svg viewBox="0 0 48 48" width="36" height="36" aria-hidden="true" focusable="false">
+
+                <!-- 核心：抽象火焰 / 棋子意象（兼具策略与焰） -->
+                <g class="ember-core" transform="translate(0,0)">
+                  <path
+                    d="M24 14 C26 18, 30 20, 28 26 C26 32, 22 34, 24 38 C20 34, 18 30, 20 26 C22 22, 24 20, 24 14 Z" />
                 </g>
-                <!-- 中心晶核 -->
-                <g class="crystal-core">
-                  <path d="M24 12 L31 18 L28 28 L24 32 L20 28 L17 18 Z" />
-                </g>
-                <!-- 小光点群 -->
-                <g class="crystal-sparks" aria-hidden="true">
-                  <circle cx="6" cy="10" r="0.9" />
+
+                <!-- 飞烬 / 星屑 -->
+                <g class="ember-sparks" aria-hidden="true">
+                  <circle cx="6" cy="10" r="0.95" />
                   <circle cx="42" cy="14" r="0.8" />
-                  <circle cx="38" cy="36" r="0.7" />
+                  <circle cx="38" cy="36" r="0.75" />
                   <circle cx="10" cy="34" r="0.7" />
                 </g>
               </svg>
+
             </div>
           </div>
 
@@ -85,23 +75,11 @@
     <!-- 底部发送区 -->
     <section class="message-form" aria-label="写下你的留言">
       <label class="sr-only" for="mb-name">你的昵称</label>
-      <input
-        id="mb-name"
-        v-model="name"
-        type="text"
-        placeholder="你的昵称"
-        @keydown.enter.prevent
-      />
+      <input id="mb-name" v-model="name" type="text" placeholder="你的昵称" @keydown.enter.prevent />
 
       <label class="sr-only" for="mb-content">留言内容</label>
-      <textarea
-        id="mb-content"
-        v-model="content"
-        placeholder="写下你的留言..."
-        @keydown.ctrl.enter.prevent="submitMessage"
-        @input="autoGrow"
-        ref="textareaRef"
-      />
+      <textarea id="mb-content" v-model="content" placeholder="写下你的留言..." @keydown.ctrl.enter.prevent="submitMessage"
+        @input="autoGrow" ref="textareaRef" />
 
       <div class="form-row">
         <div class="hint">按 <kbd>Ctrl</kbd> + <kbd>Enter</kbd> 快捷发送</div>
@@ -115,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, onBeforeUnmount } from "vue";
 import { getMessageList, createMessage } from "@/api/modules/message";
 
 const messages = ref<any[]>([]);
@@ -185,11 +163,41 @@ const autoGrow = (e?: Event) => {
   ta.style.height = h + "px";
 };
 
+
+
+// ========== 背景图片导入与轮播 ==========
+const modules = import.meta.glob('@/assets/images1/*.{jpg,png,jpeg,webp}', { eager: true })
+const allSrcs: string[] = Object.values(modules).map((mod: any) => mod.default)
+
+const modules2 = import.meta.glob('@/assets/images2/*.{jpg,png,jpeg,webp}', { eager: true })
+const allSrcs2: string[] = Object.values(modules2).map((mod: any) => mod.default)
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = arr.slice()
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+      ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+const randomFive = ref<string[]>(shuffle(allSrcs).slice(0, 5))
+const randomFive2 = ref<string[]>(shuffle(allSrcs2).slice(0, 5))
+
+const currentIndex = ref(0)
+let Imgtimer: number | undefined
+
+
 onMounted(() => {
   fetchMessages();
-  // ensure textarea autosize initial
+  Imgtimer = window.setInterval(() => {
+    currentIndex.value = (currentIndex.value + 1) % (Math.max(1, randomFive.value.length))
+  }, 5200)
   nextTick(() => autoGrow());
 });
+
+onBeforeUnmount(() => {
+  if (Imgtimer) clearInterval(Imgtimer)
+})
 </script>
 
 <style scoped lang="scss">
@@ -201,13 +209,9 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   /* 深海 / 黑海岸色调：深蓝 -> 海蓝 -> 冰蓝（带微弱星尘） */
-  background: linear-gradient(
-    180deg,
-    #031726 0%,
-    #07384a 36%,
-    #0b5d78 68%,
-    #052f47 100%
-  );
+  background: linear-gradient(180deg,
+      #000 0%,
+      #fff 100%);
 
   font-family: "Noto Sans SC", "Noto Sans", system-ui, -apple-system, "Segoe UI",
     Roboto, Arial;
@@ -216,67 +220,42 @@ onMounted(() => {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* 深海暗角 + 星尘光晕（把视线引向中心列表） */
-  &::after {
-    content: "";
+
+  .carousel {
     position: absolute;
     inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-        600px 280px at 18% 10%,
-        rgba(10, 40, 60, 0.28),
-        transparent 18%
-      ),
-      radial-gradient(
-        700px 300px at 82% 88%,
-        rgba(80, 140, 170, 0.06),
-        transparent 22%
-      ),
-      linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.24));
     z-index: 0;
-    mix-blend-mode: overlay;
+    pointer-events: none;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(2, 8, 14, 0.15), rgba(2, 8, 14, 0.25));
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .carousel-image {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1s ease, transform 10s linear;
+      filter: blur(0.8px) saturate(0.92);
+      transform: scale(1.05);
+
+      &.active {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
   }
 
-  /* 细微浮动星粒 - 使用伪元素渲染，轻量级动画 */
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -20% -10%;
-    background-image: radial-gradient(
-        circle at 10% 20%,
-        rgba(168, 240, 255, 0.06) 0 1px,
-        transparent 2px
-      ),
-      radial-gradient(
-        circle at 70% 30%,
-        rgba(168, 240, 255, 0.04) 0 1px,
-        transparent 2px
-      ),
-      radial-gradient(
-        circle at 40% 70%,
-        rgba(120, 200, 255, 0.03) 0 1px,
-        transparent 2px
-      );
-    opacity: 0.85;
-    z-index: 0;
-    filter: blur(1px);
-    animation: floatStars 18s linear infinite;
-    pointer-events: none;
-  }
-
-  @keyframes floatStars {
-    0% {
-      transform: translateY(0) translateX(0);
-      opacity: 0.9;
-    }
-    50% {
-      transform: translateY(-12px) translateX(6px);
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(0) translateX(0);
-      opacity: 0.9;
-    }
+  /* 可在小屏使用第二组竖图，避免裁切失衡 */
+  .carousel2 {
+    display: none;
   }
 
   /* ---------- 顶部标题（毛玻璃 + 晶体装饰） ---------- */
@@ -287,19 +266,14 @@ onMounted(() => {
     transform: translateX(-50%);
     width: calc(100% - 32px);
     max-width: 960px;
-    /* 冷色毛玻璃 */
-    background: linear-gradient(
-      180deg,
-      rgba(8, 28, 40, 0.48),
-      rgba(6, 34, 50, 0.36)
-    );
+    /* 长离主题：暗底 + 微暖余焰光 */
+
     padding: 14px 18px;
     border-radius: 14px;
-    box-shadow: 0 14px 44px rgba(2, 18, 28, 0.6),
-      inset 0 1px 0 rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(8px) saturate(120%);
+    box-shadow: 0 14px 44px rgba(6, 4, 4, 0.6), inset 0 1px 0 rgba(255, 160, 110, 0.02);
+    backdrop-filter: blur(2px) saturate(110%);
     z-index: 6;
-    border: 1px solid rgba(120, 200, 255, 0.06);
+    border: 1px solid rgba(255, 120, 70, 0.06);
 
     .title-wrap {
       display: flex;
@@ -309,14 +283,17 @@ onMounted(() => {
       h1 {
         margin: 0;
         font-size: 18px;
-        color: #8ee8ff; /* 冷光色标题 */
+        color: #ffb890;
+        /* 暖金色标题 */
         letter-spacing: 0.4px;
         font-weight: 900;
-        text-shadow: 0 2px 10px rgba(30, 120, 160, 0.18);
+        text-shadow: 0 2px 14px rgba(80, 30, 18, 0.28);
       }
+
       .title-count {
-        color: #bff7ff; /* 冰蓝色，契合守岸人风格 */
-        font-size: 12px; /* 稍微小一点 */
+        color: #ffdebe;
+        /* 暖米色偏亮 */
+        font-size: 12px;
         font-weight: 700;
         margin-left: 6px;
       }
@@ -324,34 +301,32 @@ onMounted(() => {
       .subtitle {
         margin: 0;
         margin-left: auto;
-        color: rgba(190, 230, 245, 0.9);
+        color: rgba(245, 232, 220, 0.92);
+        /* 暖米色文本 */
         font-size: 13px;
         font-weight: 600;
+        /* 微光下沉效果，契合仪式感 */
+        text-shadow: 0 1px 8px rgba(255, 120, 70, 0.04);
       }
     }
 
-    /* 角落的晶体光晕装饰（视觉） */
+    /* 角落的余焰光斑装饰（视觉） */
     &::before {
       content: "";
       position: absolute;
       right: 12px;
       top: 8px;
-      width: 72px;
-      height: 44px;
-      background: radial-gradient(
-          14px 8px at 20% 40%,
-          rgba(110, 210, 255, 0.12),
-          transparent 30%
-        ),
-        radial-gradient(
-          20px 10px at 60% 60%,
-          rgba(90, 160, 200, 0.08),
-          transparent 30%
-        );
+      width: 84px;
+      height: 48px;
+      background:
+        radial-gradient(34px 16px at 20% 40%, rgba(255, 180, 120, 0.12), transparent 30%),
+        radial-gradient(40px 20px at 60% 60%, rgba(255, 120, 70, 0.08), transparent 30%);
       filter: blur(6px);
       pointer-events: none;
       z-index: -1;
     }
+
+
   }
 
   /* ---------- 留言列表 ---------- */
@@ -360,11 +335,13 @@ onMounted(() => {
     position: relative;
     flex: 1;
     overflow-y: auto;
-    padding: 28px 20px 340px; /* 给底部输入更多空间 */
+    padding: 28px 20px 340px;
+    /* 给底部输入更多空间 */
     margin-top: 18px;
 
     .message-list-inner {
       max-width: 960px;
+      max-height: 80vh;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
@@ -384,11 +361,9 @@ onMounted(() => {
         gap: 12px;
         align-items: center;
         padding: 12px;
-        background: linear-gradient(
-          180deg,
-          rgba(8, 36, 48, 0.36),
-          rgba(6, 34, 44, 0.28)
-        );
+        background: linear-gradient(180deg,
+            rgba(8, 36, 48, 0.36),
+            rgba(6, 34, 44, 0.28));
         border-radius: 12px;
         box-shadow: 0 6px 18px rgba(2, 18, 26, 0.5);
         border: 1px solid rgba(80, 160, 200, 0.03);
@@ -398,7 +373,7 @@ onMounted(() => {
         width: 44px;
         height: 44px;
         border-radius: 10px;
-        background: linear-gradient(90deg, #0f8aa6, #72d0ff);
+        background: linear-gradient(90deg, #d16711, #f0831e);
       }
 
       .sk-lines {
@@ -407,11 +382,9 @@ onMounted(() => {
         .sk-line {
           height: 10px;
           border-radius: 6px;
-          background: linear-gradient(
-            90deg,
-            rgba(255, 255, 255, 0.06),
-            rgba(150, 220, 250, 0.03)
-          );
+          background: linear-gradient(90deg,
+              rgba(255, 255, 255, 0.06),
+              rgba(150, 220, 250, 0.03));
           margin-bottom: 8px;
         }
 
@@ -422,62 +395,46 @@ onMounted(() => {
     }
   }
 
-  /* ---------- 单条消息卡片（守岸人版） ---------- */
+  /* ---------- 单条消息卡片（ ---------- */
+  /* 长离风格：留言卡（暗焰匣） */
   .message-card {
-    /* 采用半透明深色玻璃感 + 冰蓝边缘高光 */
-    background: linear-gradient(
-      180deg,
-      rgba(6, 30, 40, 0.72),
-      rgba(5, 25, 34, 0.68)
-    );
+    /* 暗底 + 匣中余焰轻映 */
+    background: linear-gradient(180deg, rgba(10, 6, 4, 0.16), rgba(8, 4, 3, 0.22));
     border-radius: 14px;
     padding: 14px 16px;
-    margin: 0 auto;
+    margin: 6px auto;
     width: calc(100% - 48px);
     max-width: 960px;
-    box-shadow: 0 18px 60px rgba(2, 18, 26, 0.6);
-    border: 1px solid rgba(110, 200, 255, 0.06);
-    transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.32s,
-      border-color 0.32s;
+
+    border: 1px solid rgba(255, 120, 70, 0.04);
+    transition: transform 0.32s cubic-bezier(.2, .9, .3, 1), box-shadow 0.32s, border-color 0.32s;
     transform-origin: center;
     position: relative;
     z-index: 3;
     overflow: visible;
 
-    /* 右上角的“晶格光斑”装饰 */
-    .crystal-badge {
+    /* 右上角保留（可做更淡的余焰光斑） */
+    &::before {
+      content: "";
       position: absolute;
       right: 10px;
       top: 8px;
-      width: 40px;
-      height: 40px;
-      pointer-events: none;
-      z-index: 4;
-      background: radial-gradient(
-          circle at 30% 35%,
-          rgba(160, 240, 255, 0.18),
-          transparent 30%
-        ),
-        radial-gradient(
-          circle at 70% 70%,
-          rgba(120, 200, 255, 0.06),
-          transparent 30%
-        );
+      width: 44px;
+      height: 44px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255, 180, 120, 0.08), transparent 30%),
+        radial-gradient(circle at 70% 70%, rgba(255, 120, 70, 0.04), transparent 30%);
       filter: blur(3px);
+      pointer-events: none;
       border-radius: 8px;
+      z-index: 2;
     }
 
     &:hover {
       transform: translateY(-8px) scale(1.01);
-      box-shadow: 0 30px 90px rgba(0, 20, 30, 0.68);
-      border-color: rgba(140, 220, 255, 0.12);
-    }
-
-    /* hover 时左侧晶体发光动效 */
-    &:hover::before {
-      box-shadow: 0 14px 46px rgba(60, 180, 210, 0.12),
-        inset 0 2px 8px rgba(255, 255, 255, 0.03);
-      transform: translateX(-2px) scaleY(1.02);
+      box-shadow: 0 34px 100px rgba(6, 4, 4, 0.8);
+      border-color: rgba(255, 140, 90, 0.12);
+      background: linear-gradient(180deg, rgba(10, 6, 4, 0.56), rgba(8, 4, 3, 0.72));
     }
 
     .message-meta {
@@ -500,10 +457,10 @@ onMounted(() => {
           align-items: center;
           justify-content: center;
           font-weight: 900;
-          color: #002a35;
-          background: linear-gradient(180deg, #bff7ff 0%, #66dff0 60%);
-          border: 2px solid rgba(255, 255, 255, 0.06);
-          box-shadow: inset 0 -6px 18px rgba(0, 20, 30, 0.08);
+          color: #2b1208;
+          background: linear-gradient(180deg, #ffd9b8 0%, #ffb890 60%);
+          border: 2px solid rgba(255, 160, 110, 0.06);
+          box-shadow: inset 0 -6px 18px rgba(20, 8, 6, 0.06);
           font-size: 16px;
           flex-shrink: 0;
         }
@@ -511,28 +468,22 @@ onMounted(() => {
         .meta-texts {
           .message-name {
             font-size: 15px;
-            color: #bff7ff;
+            color: #ffb890;
+            /* 暖金色 */
             font-weight: 800;
             line-height: 1;
-            text-shadow: 0 3px 8px rgba(0, 40, 60, 0.35);
+            text-shadow: 0 3px 8px rgba(40, 16, 12, 0.35);
           }
 
           .message-time {
             font-size: 12px;
-            color: rgba(180, 215, 230, 0.9);
+            color: rgba(245, 232, 220, 0.78);
             margin-top: 2px;
           }
         }
       }
 
-      /* ===========================================================
-   守岸人风格 图标 完整 SCSS（嵌套写法）
-   适配 HTML 结构：
-   <div class="shouan-icon" role="button" tabindex="0" aria-label="共鸣之晶">
-     <svg> ... <g class="crystal-frame">... </g> <g class="crystal-core">... </g> <g class="crystal-sparks">... </g> </svg>
-   </div>
-   =========================================================== */
-
+      /* 右侧：焰棋徽（替代晶格） */
       .shouan-icon {
         display: inline-grid;
         place-items: center;
@@ -542,23 +493,15 @@ onMounted(() => {
         cursor: pointer;
         user-select: none;
         position: relative;
-        z-index: 1;
+        z-index: 4;
 
-        /* 背景与内阴影，塑造深海玻璃感 */
-        background: linear-gradient(
-          180deg,
-          rgba(6, 30, 40, 0.92),
-          rgba(8, 44, 60, 0.84)
-        );
-        border: 1px solid rgba(120, 200, 255, 0.06);
-        box-shadow: 0 8px 30px rgba(2, 12, 18, 0.6),
-          inset 0 1px 0 rgba(255, 255, 255, 0.02);
-        transition: transform 260ms cubic-bezier(0.2, 0.9, 0.3, 1),
-          box-shadow 260ms, background 260ms;
+        background: linear-gradient(180deg, rgba(10, 6, 4, 0.92), rgba(12, 8, 6, 0.94));
+        border: 1px solid rgba(255, 120, 70, 0.06);
+        box-shadow: 0 8px 30px rgba(6, 4, 4, 0.64), inset 0 1px 0 rgba(255, 160, 110, 0.02);
+        transition: transform 260ms cubic-bezier(.2, .9, .3, 1), box-shadow 260ms, background 260ms;
         -webkit-tap-highlight-color: transparent;
-        will-change: transform, box-shadow;
+        will-change: transform, box-shadow, opacity;
 
-        /* svg 基础尺寸 */
         svg {
           width: 36px;
           height: 36px;
@@ -566,244 +509,172 @@ onMounted(() => {
           overflow: visible;
         }
 
-        /* ---------- 外层晶格（描边） ---------- */
-        .crystal-frame {
-          path {
-            fill: none;
-            stroke: rgba(140, 220, 255, 0.22);
-            stroke-width: 1.2;
-            stroke-linejoin: round;
-            filter: drop-shadow(0 6px 14px rgba(40, 140, 170, 0.06));
-            transition: stroke 260ms, opacity 260ms, transform 260ms;
-            transform-origin: 50% 50%;
-            opacity: 0.96;
-          }
+
+
+        .ember-core path {
+          fill: #ff9a66;
+          opacity: 0.14;
+          transition: fill 260ms, opacity 260ms, transform 260ms, filter 260ms;
+          filter: drop-shadow(0 8px 20px rgba(255, 120, 70, 0.06));
         }
 
-        /* ---------- 中心晶核（填充） ---------- */
-        .crystal-core {
-          path {
-            fill: #7be8ff; /* 高亮色（默认弱） */
-            opacity: 0.14;
-            transform-origin: 50% 50%;
-            transition: fill 260ms, opacity 260ms, transform 260ms, filter 260ms;
-            filter: drop-shadow(0 10px 26px rgba(50, 160, 200, 0.08));
-          }
+        .ember-sparks circle {
+          fill: rgba(255, 200, 150, 0.95);
+          opacity: 0;
+          transition: opacity 240ms, transform 360ms;
         }
 
-        /* ---------- 小光点（星屑） ---------- */
-        .crystal-sparks {
-          circle {
-            fill: rgba(180, 245, 255, 0.95);
-            opacity: 0;
-            transform-origin: center;
-            transition: opacity 240ms, transform 360ms;
-          }
-        }
-
-        /* ---------- hover / focus（交互） ---------- */
         &:hover,
         &:focus {
-          transform: translateY(-6px) scale(1.03);
-          box-shadow: 0 26px 86px rgba(2, 18, 30, 0.7),
-            inset 0 1px 0 rgba(255, 255, 255, 0.02);
-          background: linear-gradient(
-            180deg,
-            rgba(6, 36, 48, 0.95),
-            rgba(10, 52, 72, 0.9)
-          );
+          transform: translateY(-6px) scale(1.04);
+          box-shadow: 0 28px 86px rgba(8, 4, 4, 0.72), inset 0 1px 0 rgba(255, 160, 110, 0.02);
+          background: linear-gradient(180deg, rgba(14, 8, 6, 0.96), rgba(16, 10, 8, 0.98));
 
-          .crystal-frame path {
-            stroke: rgba(110, 230, 255, 0.95);
-            opacity: 1;
-          }
-          .crystal-core path {
+
+
+          .ember-core path {
             opacity: 1;
             transform: scale(1.03);
-            fill: #7be8ff;
-            filter: drop-shadow(0 18px 46px rgba(50, 180, 220, 0.12));
+            fill: #ff9a66;
+            filter: drop-shadow(0 18px 46px rgba(255, 120, 70, 0.12));
           }
-          .crystal-sparks circle {
+
+          .ember-sparks circle {
             opacity: 1;
+
             &:nth-child(1) {
               transform: translate(-4px, -6px) scale(1.4);
             }
+
             &:nth-child(2) {
               transform: translate(6px, -4px) scale(1.2);
             }
+
             &:nth-child(3) {
               transform: translate(4px, 6px) scale(1.1);
             }
+
             &:nth-child(4) {
               transform: translate(-6px, 4px) scale(1.15);
             }
           }
         }
 
-        /* 点击态短反馈 */
         &:active {
           transform: translateY(-2px) scale(0.99);
         }
 
-        /* focus 可访问样式（键盘） */
         &:focus {
           outline: none;
-          box-shadow: 0 26px 86px rgba(2, 18, 30, 0.7),
-            0 0 0 6px rgba(64, 180, 220, 0.06);
+          box-shadow: 0 28px 86px rgba(8, 4, 4, 0.72), 0 0 0 6px rgba(255, 120, 70, 0.06);
         }
 
-        /* ---------- active 类（外层手动加上 .active 时更强的呼吸） ---------- */
         &.active {
-          .crystal-core path {
+          .ember-core path {
             opacity: 1;
-            animation: corePulse 2000ms ease-in-out infinite;
+            animation: emberCorePulse 2000ms ease-in-out infinite;
           }
-          .crystal-frame path {
-            stroke: rgba(110, 230, 255, 0.95);
-          }
+
+
         }
 
-        /* disabled 表现（如果需要） */
-        &.disabled {
-          cursor: not-allowed;
-          opacity: 0.5;
-          transform: none;
-          box-shadow: none;
+        /* 动画：浮动 / 框体摆动 / 核心呼吸 / 火星上浮 */
+        animation: emberFloat 8s ease-in-out infinite;
 
-          .crystal-core path {
-            opacity: 0.06;
-            fill: #3b6aa8;
-            filter: none;
-          }
-          .crystal-frame path {
-            stroke: rgba(120, 160, 180, 0.06);
-          }
-          .crystal-sparks circle {
-            opacity: 0;
-            transform: none;
-          }
+
+
+        .ember-core path {
+          animation: emberCoreBreathe 4.6s ease-in-out infinite;
+          transform-origin: 50% 50%;
         }
 
-        /* ---------- 常驻循环动效（轻浮 / 晶核呼吸 / 外框摆动 / 星点循环） ---------- */
-        /* 把这些放在 .shouan-icon 下以便 scope 管理 */
-        animation: shouanFloat 8s ease-in-out infinite;
-        will-change: transform, opacity;
-
-        .crystal-frame {
-          path {
-            transform-origin: 50% 50%;
-            animation: frameSway 12s ease-in-out infinite;
-          }
+        .ember-sparks circle {
+          animation: emberSparkFloat 1800ms ease-in-out infinite;
         }
 
-        .crystal-core {
-          path {
-            animation: coreBreathe 4.6s ease-in-out infinite;
-            transform-origin: 50% 50%;
-          }
-        }
-
-        .crystal-sparks {
-          circle {
-            opacity: 0;
-            transform-origin: center;
-            animation: sparkFloat 1800ms ease-in-out infinite;
-          }
-          circle:nth-child(1) {
-            animation-delay: 0ms;
-          }
-          circle:nth-child(2) {
-            animation-delay: 220ms;
-          }
-          circle:nth-child(3) {
-            animation-delay: 420ms;
-          }
-          circle:nth-child(4) {
-            animation-delay: 640ms;
-          }
-        }
-
-        /* 小屏适配：尺寸微调 */
         @media (max-width: 480px) {
           width: 44px;
           height: 44px;
+
           svg {
             width: 30px;
             height: 30px;
           }
-
-          .crystal-frame path {
-            stroke-width: 1;
-          }
-          .crystal-core path {
-            filter: drop-shadow(0 6px 16px rgba(40, 160, 200, 0.06));
-          }
         }
       }
 
-      /* ================= keyframes ================= */
-
-      @keyframes shouanFloat {
+      /* ============ keyframes ============ */
+      @keyframes emberFloat {
         0% {
           transform: translateY(0) scale(1);
         }
+
         40% {
           transform: translateY(-6px) scale(1.015);
         }
+
         70% {
           transform: translateY(-3px) scale(1.008);
         }
+
         100% {
           transform: translateY(0) scale(1);
         }
       }
 
-      @keyframes frameSway {
+      @keyframes emberFrameSway {
         0% {
           transform: rotate(-0.6deg) translateY(0);
         }
+
         50% {
           transform: rotate(0.6deg) translateY(-2px);
         }
+
         100% {
           transform: rotate(-0.6deg) translateY(0);
         }
       }
 
-      @keyframes coreBreathe {
+      @keyframes emberCoreBreathe {
         0% {
           transform: scale(1);
-          opacity: 0.92;
-          filter: drop-shadow(0 6px 18px rgba(40, 160, 200, 0.06));
+          opacity: 0.9;
+          filter: drop-shadow(0 6px 18px rgba(255, 120, 70, 0.06));
         }
+
         50% {
           transform: scale(1.04);
           opacity: 1;
-          filter: drop-shadow(0 18px 46px rgba(50, 180, 220, 0.12));
+          filter: drop-shadow(0 18px 46px rgba(255, 140, 80, 0.12));
         }
+
         100% {
           transform: scale(1);
-          opacity: 0.92;
-          filter: drop-shadow(0 6px 18px rgba(40, 160, 200, 0.06));
+          opacity: 0.9;
+          filter: drop-shadow(0 6px 18px rgba(255, 120, 70, 0.06));
         }
       }
 
-      @keyframes sparkFloat {
+      @keyframes emberSparkFloat {
         0% {
           opacity: 0;
           transform: translateY(0) scale(0.8);
           filter: blur(0);
         }
+
         35% {
           opacity: 1;
           transform: translateY(-6px) scale(1.15);
-          filter: blur(0.2px);
+          filter: blur(.2px);
         }
+
         70% {
           opacity: 0.6;
           transform: translateY(-10px) scale(1.25);
-          filter: blur(0.8px);
+          filter: blur(.8px);
         }
+
         100% {
           opacity: 0;
           transform: translateY(-14px) scale(1.35);
@@ -811,34 +682,29 @@ onMounted(() => {
         }
       }
 
-      @keyframes corePulse {
+      @keyframes emberCorePulse {
         0% {
           transform: scale(1);
-          filter: drop-shadow(0 6px 18px rgba(40, 160, 200, 0.06));
+          filter: drop-shadow(0 6px 18px rgba(255, 120, 70, 0.06));
         }
+
         50% {
           transform: scale(1.06);
-          filter: drop-shadow(0 18px 46px rgba(50, 180, 220, 0.12));
+          filter: drop-shadow(0 18px 46px rgba(255, 140, 80, 0.12));
         }
+
         100% {
           transform: scale(1);
-          filter: drop-shadow(0 6px 18px rgba(40, 160, 200, 0.06));
-        }
-      }
-
-      /* ================= Accessibility: 减少动效支持 ================= */
-      @media (prefers-reduced-motion: reduce) {
-        .shouan-icon,
-        .shouan-icon * {
-          animation: none !important;
-          transition: none !important;
+          filter: drop-shadow(0 6px 18px rgba(255, 120, 70, 0.06));
         }
       }
     }
 
+    /* .message-meta end */
+
     .message-content {
       font-size: 15px;
-      color: rgba(230, 248, 255, 0.95);
+      color: rgba(245, 232, 220, 0.96);
       line-height: 1.7;
       white-space: pre-wrap;
       word-break: break-word;
@@ -848,18 +714,6 @@ onMounted(() => {
     }
   }
 
-  /* 列表项进场动效（保留原 transition-group 类名） */
-  .msg-enter-from,
-  .msg-leave-to {
-    opacity: 0;
-    transform: translateY(18px);
-    filter: blur(0.8px);
-  }
-
-  .msg-enter-active,
-  .msg-leave-active {
-    transition: all 420ms cubic-bezier(0.2, 0.9, 0.2, 1);
-  }
 
   /* ---------- 固定底部输入区（守岸人风格） ---------- */
   .message-form {
@@ -869,47 +723,48 @@ onMounted(() => {
     bottom: 18px;
     width: calc(100% - 32px);
     max-width: 960px;
-    background: linear-gradient(
-      180deg,
-      rgba(6, 28, 36, 0.84),
-      rgba(6, 30, 40, 0.78)
-    );
+
+    /* 暗匣背景与微弱余焰内光（写死颜色） */
+    background: linear-gradient(180deg, rgba(10, 6, 4, 0.92), rgba(8, 4, 3, 0.96));
     padding: 14px;
     border-radius: 14px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    box-shadow: 0 18px 48px rgba(2, 18, 28, 0.6);
+    box-shadow: 0 22px 64px rgba(6, 4, 4, 0.78), inset 0 1px 0 rgba(255, 160, 110, 0.02);
     z-index: 6;
-    border: 1px solid rgba(120, 200, 255, 0.04);
+    border: 1px solid rgba(255, 120, 70, 0.04);
+    will-change: transform, opacity;
 
+    /* 表单字段（输入/文本区） */
     input,
     textarea {
       padding: 12px 14px;
       border-radius: 12px;
-      border: 1px solid rgba(120, 200, 255, 0.06);
+      border: 1px solid rgba(255, 120, 70, 0.06);
       font-size: 14px;
       outline: none;
-      transition: box-shadow 0.18s, border-color 0.18s, background 0.18s;
-      background: linear-gradient(
-        180deg,
-        rgba(10, 30, 36, 0.6),
-        rgba(6, 24, 34, 0.6)
-      );
-      box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.28);
-      color: #e6f7fb;
+      transition: box-shadow 0.18s, border-color 0.18s, background 0.18s, transform 0.12s;
+      background: linear-gradient(180deg, rgba(14, 8, 6, 0.60), rgba(10, 6, 4, 0.64));
+      box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.48);
+      color: #f5e8dc;
+      /* 暖米文字 */
       resize: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(245, 230, 216, 0.46);
     }
 
     input:focus,
     textarea:focus {
-      border-color: rgba(110, 200, 255, 0.18);
-      box-shadow: 0 8px 26px rgba(40, 120, 150, 0.12);
-      background: linear-gradient(
-        180deg,
-        rgba(12, 40, 54, 0.7),
-        rgba(8, 30, 44, 0.68)
-      );
+      border-color: rgba(255, 140, 90, 0.22);
+      box-shadow: 0 10px 30px rgba(255, 120, 70, 0.06), inset 0 -6px 12px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(180deg, rgba(18, 10, 8, 0.72), rgba(12, 8, 6, 0.70));
+      transform: translateY(-1px);
     }
 
     textarea {
@@ -918,6 +773,7 @@ onMounted(() => {
       line-height: 1.6;
     }
 
+    /* 行布局：提示 + 提交 */
     .form-row {
       display: flex;
       align-items: center;
@@ -925,57 +781,113 @@ onMounted(() => {
       gap: 12px;
 
       .hint {
-        color: rgba(170, 210, 230, 0.9);
+        color: rgba(245, 232, 220, 0.86);
         font-size: 13px;
         display: flex;
         align-items: center;
         gap: 8px;
 
         kbd {
-          background: rgba(10, 30, 40, 0.72);
+          background: rgba(18, 10, 8, 0.78);
           border-radius: 6px;
-          padding: 2px 6px;
-          border: 1px solid rgba(80, 160, 200, 0.06);
+          padding: 3px 7px;
+          border: 1px solid rgba(255, 120, 70, 0.06);
           font-size: 12px;
-          box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.3);
-          color: #bfefff;
+          box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.36);
+          color: #ffd9b8;
+          font-weight: 700;
+          letter-spacing: 0.6px;
         }
       }
 
+      /* 提交按钮：余焰渐变 + 微光呼吸 */
       button {
         padding: 10px 18px;
-        background: linear-gradient(180deg, #6feaff 0%, #2bb7d6 100%);
-        color: #002a32;
+        background: linear-gradient(180deg, #ff8a4a 0%, #ff6b35 60%);
+        color: #2b1208;
         border: none;
         border-radius: 12px;
         cursor: pointer;
         font-weight: 800;
-        box-shadow: 0 12px 36px rgba(40, 160, 200, 0.14);
-        transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s;
+        box-shadow: 0 14px 44px rgba(255, 120, 70, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
+        will-change: transform, box-shadow;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+
+        /* 小光晕装饰（伪元素） */
+        &::after {
+          content: "";
+          display: inline-block;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: radial-gradient(circle at 40% 40%, #ffd9b8 0%, #ff9a66 40%, transparent 60%);
+          box-shadow: 0 6px 18px rgba(255, 140, 80, 0.18);
+        }
+
+        &:hover {
+          transform: translateY(-3px) scale(1.02);
+          box-shadow: 0 22px 58px rgba(255, 120, 70, 0.14);
+        }
+
+        &:active {
+          transform: translateY(-1px) scale(0.995);
+        }
       }
 
+      /* 禁用态 */
       button:disabled {
-        opacity: 0.5;
+        opacity: 0.52;
         cursor: not-allowed;
         transform: none;
         box-shadow: none;
-        background: linear-gradient(
-          180deg,
-          rgba(8, 30, 36, 0.6),
-          rgba(6, 24, 32, 0.6)
-        );
-        color: rgba(170, 200, 220, 0.7);
+        background: linear-gradient(180deg, rgba(14, 8, 6, 0.6), rgba(12, 8, 6, 0.6));
+        color: rgba(220, 200, 180, 0.6);
       }
+    }
 
-      button:not(:disabled):active {
-        transform: translateY(1px);
-      }
+
+
+    /* 轻微脉冲（可作为调用高亮或新留言提示时短暂加上 .pulse） */
+    &.pulse {
+      animation: formPulse 1200ms ease-in-out 1;
+    }
+  }
+
+  /* 辅助关键帧（按钮/表单轻微呼吸与脉冲） */
+  @keyframes formPulse {
+    0% {
+      transform: translateX(-50%) scale(1);
+      box-shadow: 0 22px 64px rgba(6, 4, 4, 0.78);
+    }
+
+    40% {
+      transform: translateX(-50%) scale(1.01);
+      box-shadow: 0 28px 84px rgba(255, 120, 70, 0.12);
+    }
+
+    100% {
+      transform: translateX(-50%) scale(1);
+      box-shadow: 0 22px 64px rgba(6, 4, 4, 0.78);
     }
   }
 
   /* ---------- 响应式：移动端收敛（守岸人样式） ---------- */
   @media (max-width: 980px) {
     padding-top: 90px;
+
+
+    .carousel1 {
+      display: none;
+    }
+
+    .carousel2 {
+      display: block;
+    }
+
+
 
     .board-header {
       left: 12px;

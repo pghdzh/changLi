@@ -13,7 +13,7 @@
         </div>
 
         <section class="center" role="main">
-            <h1 class="title">独属于我的蒙娜丽莎 · 守岸人</h1>
+            <h1 class="title">以身焚火 · 长离</h1>
 
             <div class="subtitle" aria-live="polite">
                 <span class="typed">{{ typed }}</span><span class="cursor" aria-hidden="true">▍</span>
@@ -23,17 +23,11 @@
 
         <footer class="shore-footer-simple" role="contentinfo" aria-label="页面页脚">
             <div class="inner container">
-
-
                 <div class="center">
-                    <div class="slogan">回声为灯 · 潮汐为路</div>
-                    <div class="meta">© <span>{{ year }}</span> 守岸人电子设定集 · 制作：霜落天亦</div>
+                    <div class="slogan">落子为誓 · 余焰为证</div>
+                    <div class="meta">© <span>{{ year }}</span> 长离电子设定集 · 制作：霜落天亦</div>
                 </div>
-
-
             </div>
-
-
         </footer>
 
     </main>
@@ -177,23 +171,22 @@ function tickCanvas(now: number) {
 }
 
 // ========== 打字机文案 ==========
+// 适合长离风格的副标题（偏长句，已为打字器准备）
 const lines = [
-    '回声为灯，潮汐为路。',
-    '她在岸边，静静守候。',
-    '潮息低语，替你守住话语。',
-    '织纹一缝，弥补散落的诺言。',
-    '回声会记住你的名字。',
-    '他人的喧嚣消失后，她仍在潮光里守望。',
-    '以叙响织构为笔，她把回声缀连成路。',
-    '当潮退去，岸边仍留一盏不灭的光。',
-    '她用静默与耐心，替迷途的人留下一条回航的径。',
-    '织成细密的纹理，护住最易碎的愿望。',
-    '黑海岸的夜很深，她以回声为灯，替你把未说出口的话，送回岸边。',
-    '在潮汐与回响之间，她悄悄缝合那些被时间撕裂的誓言与记忆。',
-    '无须誓言喧嚣，她只用潮光与织纹，慢慢把散落的诺言缝成完整的路。',
-    '她不是急于救赎的英雄，而是守望者：耐心、稳重且始终如一，像岸边那盏静亮的灯。',
-    '潮光会带走疲惫，回声会替你守住无声的愿望——那是她最温柔的守护方式。'
-]
+    "她以棋局为台，用余焰点亮方向；言简而为令，步步皆成教诲。",
+    "在焚尽与重生之间，她以冷静谋算替人择路，余烬为誓不肯消散。",
+    "师者落子如焰，既能裁定宿命，也在夜里为迷途人守一盏灯。",
+    "把每一次选择当作祭礼，她将愿望与代价并列于棋盘之上，礼成余烬长存。",
+    "以智火熔铸策略，以温柔封存伤口；她用沉稳的算筹换取他人的从容。",
+    "沉静地观棋与人心，悄无声息的算计里藏着不肯说出口的温柔。",
+    "深夜里对弈，为他人承担难抉择，唯留下教诲与余焰供后来细读。",
+    "她将灼热收为冷静的武器，把过往化为未来的筹划与坚定。",
+    "策谋是她的语言，焰光是她的笔；每一次指点都既冷静亦温暖。",
+    "以身为火，照亮他人难行之路；焚掉犹豫，只留坚定与方向。",
+    "在棋盘与仪式之间，她让每句训言都有燃烧的仪式感与重量。",
+    "落子既是承诺，余焰则为证；她用一丝不苟的安排缝合纷乱的明天。"
+];
+
 
 
 const typed = ref('')
@@ -282,13 +275,8 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-/* 守岸人色票：深海底色 + 冷青光 */
 $bg-deep: #02131a;
 $deep-2: #021e2a;
-$muted: #cfeff6;
-$accent: #4fe9df;
-$accent-2: #66c8ff;
-$glass: rgba(255, 255, 255, 0.02);
 
 .home {
     min-height: 100vh;
@@ -296,7 +284,6 @@ $glass: rgba(255, 255, 255, 0.02);
     flex-direction: column;
     justify-content: space-between;
     background: linear-gradient(180deg, $bg-deep 0%, $deep-2 70%);
-    color: $muted;
     font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'PingFang SC', 'Noto Sans CJK SC', sans-serif;
     position: relative;
     overflow: hidden;
@@ -365,17 +352,20 @@ $glass: rgba(255, 255, 255, 0.02);
             margin: 0;
             font-weight: 800;
             line-height: 1;
-            background: linear-gradient(90deg, $accent 0%, $accent-2 80%);
+            background: linear-gradient(90deg, #ff6b35 0%, #ff9a66 60%);
             -webkit-background-clip: text;
             background-clip: text;
-            color: transparent;
-            text-shadow: 0 8px 28px rgba(6, 30, 40, 0.28);
+            -webkit-text-fill-color: transparent;
+            color: #f5e8dc;
+            letter-spacing: 0.6px;
+            text-shadow: 0 8px 30px rgba(40, 16, 10, 0.45), 0 2px 8px rgba(255, 120, 70, 0.06);
         }
 
         .subtitle {
             font-size: 1.02rem;
             min-height: 1.6em;
-            color: rgba($muted, 0.88);
+            color: rgba(245, 232, 220, 0.92);
+            /* 暖米色 */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -403,9 +393,11 @@ $glass: rgba(255, 255, 255, 0.02);
 
     .shore-footer-simple {
         /* 背景与边线（颜色写死） */
-        background: linear-gradient(180deg, rgba(2, 8, 12, 0.55), rgba(2, 10, 14, 0.75));
-        border-top: 1px solid rgba(127, 191, 255, 0.04);
-        color: #cfeff6;
+        background: linear-gradient(180deg, rgba(12, 6, 4, 0.70), rgba(8, 4, 3, 0.90));
+        border-top: 1px solid rgba(255, 120, 70, 0.06);
+        /* 余焰微弱边线 */
+        color: #f5e8dc;
+        /* 暖米色文本 */
         /* 固定文本色 */
         font-size: 13px;
 
@@ -430,18 +422,22 @@ $glass: rgba(255, 255, 255, 0.02);
             flex: 1 1 auto;
 
             .slogan {
-                font-weight: 600;
-                /* 渐变流光效果（写死颜色） */
-                background: linear-gradient(90deg, #4fe9df 0%, #66c8ff 40%, #66c8ff 100%);
+                background: linear-gradient(90deg, #ff6b35 0%, #ff9a66 60%);
                 -webkit-background-clip: text;
+                background-clip: text;
                 -webkit-text-fill-color: transparent;
+                color: #f5e8dc;
                 display: inline-block;
-                position: relative;
+                line-height: 1;
+                font-size: 14px;
+                letter-spacing: 0.3px;
+                text-shadow: 0 4px 18px rgba(40, 16, 10, 0.28);
+
             }
 
             .meta {
-                color: rgba(207, 239, 246, 0.6);
-                margin-top: 4px;
+                color: rgba(245, 232, 220, 0.65);
+                margin-top: 6px;
                 font-size: 12px;
             }
         }
