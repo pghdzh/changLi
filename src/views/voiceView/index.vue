@@ -1,9 +1,9 @@
 <template>
     <section class="voice-gallery" aria-label="珂莱塔 · 语音馆">
-        <!-- 背景轮播层（单组：PC 用 randomFive，移动端用 randomFive2） -->
+   
         <div class="bg-carousel" aria-hidden="true">
             <transition-group name="bg-fade" tag="div" class="bg-layer">
-                <!-- activeImages 返回当前设备应使用的图片组 -->
+           
                 <img v-for="(src, idx) in activeImages" :key="`bg-${idx}-${isMobile ? 'm' : 'd'}`" :src="src"
                     :class="['bg-img', { active: idx === currentIndex }]" alt="" />
 
@@ -12,28 +12,32 @@
         </div>
 
         <div class="vg__wrap">
-            <!-- header（只保留 logo + 标题/副标题） -->
+   
             <header class="vg__header">
                 <div class="logo">
-                    <div class="icon-wrap" aria-hidden="true">
-                        <!-- 建议用一个回声 / 织纹风格的 SVG 图标替代 🎀 -->
-                        <svg width="56" height="56" viewBox="0 0 64 64" class="icon-soundmark" aria-hidden="true">
-                            <defs>
-                                <linearGradient id="echoGrad" x1="0" y1="0" x2="1" y2="1">
-                                    <stop offset="0%" stop-color="#4fe9df" />
-                                    <stop offset="100%" stop-color="#66c8ff" />
-                                </linearGradient>
-                            </defs>
-                            <circle cx="32" cy="32" r="30" fill="#02131a" />
-                            <g fill="none" stroke="url(#echoGrad)" stroke-width="2" stroke-linecap="round">
-                                <path d="M16,32 C24,20 40,20 48,32" />
-                                <path d="M20,32 C26,24 38,24 44,32" opacity="0.7" />
+                    <div class="shouan-icon" role="button" tabindex="0" aria-label="共鸣之晶">
+                    
+                        <svg viewBox="0 0 48 48" width="36" height="36" aria-hidden="true" focusable="false">
+
+                          
+                            <g class="ember-core" transform="translate(0,0)">
+                                <path
+                                    d="M24 14 C26 18, 30 20, 28 26 C26 32, 22 34, 24 38 C20 34, 18 30, 20 26 C22 22, 24 20, 24 14 Z" />
+                            </g>
+
+                            <!-- 飞烬 / 星屑 -->
+                            <g class="ember-sparks" aria-hidden="true">
+                                <circle cx="6" cy="10" r="0.95" />
+                                <circle cx="42" cy="14" r="0.8" />
+                                <circle cx="38" cy="36" r="0.75" />
+                                <circle cx="10" cy="34" r="0.7" />
                             </g>
                         </svg>
+
                     </div>
                     <div class="title-group">
-                        <h1 class="title">守岸人 · 语音馆</h1>
-                        <p class="subtitle">在无声之处，你的语句会被静静听见</p>
+                        <h1 class="title">长离 · 语音馆</h1>
+                        <p class="subtitle">局未终，人仍在。</p>
                     </div>
                 </div>
             </header>
@@ -269,20 +273,21 @@ watch(activeImages, (nv) => {
 </script>
 
 <style lang="scss" scoped>
-/* 全局基调：珂莱塔蓝粉＋欧泊感，颜色写死 */
-$ice-blue: #bff7ff;
-$neon-pink: #ff66c4;
-
+/* 长离风格：暗匣底色 + 余焰点缀（颜色写死） */
 .voice-gallery {
     position: relative;
     min-height: 560px;
-    font-family: "PingFang SC", "Noto Sans SC", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    color: #e6eef2;
+    font-family: "PingFang SC", "Noto Sans SC", system-ui, -apple-system, "Segoe UI",
+        Roboto, "Helvetica Neue", Arial;
+    color: #f5e6d9;
+    /* 纸色文字 */
     overflow: hidden;
     padding: 28px;
     padding-top: 80px;
+    background: linear-gradient(180deg, #100603 0%, #140704 40%, #0b0503 100%);
+    -webkit-font-smoothing: antialiased;
 
-    /* 背景轮播层，绝对定位在最底层 */
+    /* 背景轮播层（余焰暖影）*/
     .bg-carousel {
         position: absolute;
         inset: 0;
@@ -301,24 +306,24 @@ $neon-pink: #ff66c4;
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
-                display: block; // <--- 确保是可见元素
+                display: block;
                 opacity: 0;
                 transform: scale(1.02);
-                transition: opacity 900ms ease, transform 900ms ease;
+                transition: opacity 900ms ease, transform 900ms ease, filter 900ms ease;
                 pointer-events: none;
+                filter: brightness(0.72) contrast(0.92) saturate(0.9);
+                mix-blend-mode: screen;
             }
 
             .bg-img.active {
                 opacity: 1;
                 transform: scale(1);
+                filter: brightness(0.9) contrast(1) saturate(1.06) sepia(0.06);
             }
         }
-
-
-
     }
 
-    /* 前景包裹器 */
+    /* 前景容器（暗匣玻璃 + 余焰边） */
     .vg__wrap {
         position: relative;
         z-index: 2;
@@ -326,12 +331,13 @@ $neon-pink: #ff66c4;
         margin: 0 auto;
         border-radius: 14px;
         padding: 18px;
-        box-shadow: 0 12px 48px rgba(2, 6, 12, 0.6);
-        background: linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.3));
-        border: 1px solid rgba(255, 255, 255, 0.04);
-
+        box-shadow: 0 12px 48px rgba(4, 6, 6, 0.72), inset 0 1px 0 rgba(255, 220, 190, 0.02);
+        background: linear-gradient(180deg, rgba(12, 6, 4, 0.6), rgba(8, 4, 3, 0.45));
+        border: 1px solid rgba(255, 140, 90, 0.04);
+        backdrop-filter: blur(6px) saturate(1.02);
     }
 
+    /* 头部 */
     .vg__header {
         display: flex;
         gap: 12px;
@@ -343,31 +349,178 @@ $neon-pink: #ff66c4;
             gap: 12px;
             align-items: center;
 
-            .ribbon {
-                width: 56px;
-                height: 56px;
-                border-radius: 12px;
-                display: grid;
+            /* 右侧：焰棋徽（替代晶格） */
+            .shouan-icon {
+                display: inline-grid;
                 place-items: center;
-                font-size: 24px;
-                /* 用一个“蝶印 / 回声印章”背景渐变 */
-                background: radial-gradient(circle at 35% 35%, #66c8ff, #0a2c3a 80%);
-                box-shadow: 0 8px 30px rgba(102, 200, 255, 0.22);
-                color: #def8ff;
-                border: 1px solid rgba(102, 200, 255, 0.12);
-                /* 轻微内阴影 + 伪光晕 */
+                width: 52px;
+                height: 52px;
+                border-radius: 12px;
+                cursor: pointer;
+                user-select: none;
                 position: relative;
+                z-index: 4;
 
-                &::before {
-                    content: '';
-                    position: absolute;
-                    inset: -4px;
-                    border-radius: 14px;
-                    background: radial-gradient(circle, rgba(79, 233, 223, 0.2), transparent 60%);
-                    filter: blur(8px);
-                    pointer-events: none;
+                background: linear-gradient(180deg, rgba(10, 6, 4, 0.92), rgba(12, 8, 6, 0.94));
+                border: 1px solid rgba(255, 120, 70, 0.06);
+                box-shadow: 0 8px 30px rgba(6, 4, 4, 0.64), inset 0 1px 0 rgba(255, 160, 110, 0.02);
+                transition: transform 260ms cubic-bezier(.2, .9, .3, 1), box-shadow 260ms, background 260ms;
+                -webkit-tap-highlight-color: transparent;
+                will-change: transform, box-shadow, opacity;
+
+                svg {
+                    width: 36px;
+                    height: 36px;
+                    display: block;
+                    overflow: visible;
+                }
+
+
+
+                .ember-core path {
+                    fill: #ff9a66;
+                    opacity: 0.14;
+                    transition: fill 260ms, opacity 260ms, transform 260ms, filter 260ms;
+                    filter: drop-shadow(0 8px 20px rgba(255, 120, 70, 0.06));
+                }
+
+                .ember-sparks circle {
+                    fill: rgba(255, 200, 150, 0.95);
+                    opacity: 0;
+                    transition: opacity 240ms, transform 360ms;
+                }
+
+                &:hover,
+                &:focus {
+                    transform: translateY(-6px) scale(1.04);
+                    box-shadow: 0 28px 86px rgba(8, 4, 4, 0.72), inset 0 1px 0 rgba(255, 160, 110, 0.02);
+                    background: linear-gradient(180deg, rgba(14, 8, 6, 0.96), rgba(16, 10, 8, 0.98));
+
+
+
+                    .ember-core path {
+                        opacity: 1;
+                        transform: scale(1.03);
+                        fill: #ff9a66;
+                        filter: drop-shadow(0 18px 46px rgba(255, 120, 70, 0.12));
+                    }
+
+                    .ember-sparks circle {
+                        opacity: 1;
+
+                        &:nth-child(1) {
+                            transform: translate(-4px, -6px) scale(1.4);
+                        }
+
+                        &:nth-child(2) {
+                            transform: translate(6px, -4px) scale(1.2);
+                        }
+
+                        &:nth-child(3) {
+                            transform: translate(4px, 6px) scale(1.1);
+                        }
+
+                        &:nth-child(4) {
+                            transform: translate(-6px, 4px) scale(1.15);
+                        }
+                    }
+                }
+
+
+
+                /* 动画：浮动 / 框体摆动 / 核心呼吸 / 火星上浮 */
+                animation: emberFloat 8s ease-in-out infinite;
+
+
+
+                .ember-core path {
+                    animation: emberCoreBreathe 4.6s ease-in-out infinite;
+                    transform-origin: 50% 50%;
+                }
+
+                .ember-sparks circle {
+                    animation: emberSparkFloat 1800ms ease-in-out infinite;
+                }
+
+                @media (max-width: 480px) {
+                    width: 44px;
+                    height: 44px;
+
+                    svg {
+                        width: 30px;
+                        height: 30px;
+                    }
                 }
             }
+
+            /* ============ keyframes ============ */
+            @keyframes emberFloat {
+                0% {
+                    transform: translateY(0) scale(1);
+                }
+
+                40% {
+                    transform: translateY(-6px) scale(1.015);
+                }
+
+                70% {
+                    transform: translateY(-3px) scale(1.008);
+                }
+
+                100% {
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+
+
+            @keyframes emberCoreBreathe {
+                0% {
+                    transform: scale(1);
+                    opacity: 0.9;
+                    filter: drop-shadow(0 6px 18px rgba(255, 120, 70, 0.06));
+                }
+
+                50% {
+                    transform: scale(1.04);
+                    opacity: 1;
+                    filter: drop-shadow(0 18px 46px rgba(255, 140, 80, 0.12));
+                }
+
+                100% {
+                    transform: scale(1);
+                    opacity: 0.9;
+                    filter: drop-shadow(0 6px 18px rgba(255, 120, 70, 0.06));
+                }
+            }
+
+            @keyframes emberSparkFloat {
+                0% {
+                    opacity: 0;
+                    transform: translateY(0) scale(0.8);
+                    filter: blur(0);
+                }
+
+                35% {
+                    opacity: 1;
+                    transform: translateY(-6px) scale(1.15);
+                    filter: blur(.2px);
+                }
+
+                70% {
+                    opacity: 0.6;
+                    transform: translateY(-10px) scale(1.25);
+                    filter: blur(.8px);
+                }
+
+                100% {
+                    opacity: 0;
+                    transform: translateY(-14px) scale(1.35);
+                    filter: blur(1.6px);
+                }
+            }
+
+
 
             .title-group {
                 display: flex;
@@ -377,20 +530,19 @@ $neon-pink: #ff66c4;
                     margin: 0;
                     font-size: 1.5rem;
                     font-weight: 800;
-                    /* 渐变填充 — 用冷青蓝渐变 */
-                    background: linear-gradient(90deg, #4fe9df 0%, #66c8ff 80%);
+                    /* 暖金渐变文字 */
+                    background: linear-gradient(90deg, #ffd9b8 0%, #ffb37a 50%, #ff8a4a 100%);
                     -webkit-background-clip: text;
                     background-clip: text;
                     color: transparent;
                     -webkit-text-fill-color: transparent;
-                    /* 给文字一个光晕／阴影提高可读性 */
-                    text-shadow: 0 8px 24px rgba(10, 40, 60, 0.4);
-                    letter-spacing: 0.5px;
+                    text-shadow: 0 6px 20px rgba(10, 6, 6, 0.6);
+                    letter-spacing: 0.4px;
                 }
 
                 .subtitle {
                     margin: 4px 0 0;
-                    color: rgba(207, 239, 246, 0.75);
+                    color: rgba(245, 230, 214, 0.85);
                     font-size: 1rem;
                     line-height: 1.3;
                 }
@@ -398,31 +550,24 @@ $neon-pink: #ff66c4;
         }
     }
 
-
-    /* 列表 */
+    /* 列表区域 */
     .vg__list {
         display: grid;
         gap: 12px;
         margin: 0;
         padding: 0;
         list-style: none;
-
-        /* 关键：最大高度（可按需调整 calc 的数值） */
         max-height: calc(100vh - 200px);
-        /* 260px 为 header + footer + 余白，可根据实际微调 */
         overflow-y: auto;
         padding-right: 8px;
-        /* 给滚动条留空间，避免遮挡内容 */
         -webkit-overflow-scrolling: touch;
-        /* iOS 平滑滚动 */
 
-        /* 可选：桌面端显示更细的滚动条（美观） */
         &::-webkit-scrollbar {
             width: 10px;
         }
 
         &::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.06);
+            background: linear-gradient(180deg, rgba(255, 140, 90, 0.12), rgba(180, 90, 50, 0.12));
             border-radius: 8px;
             border: 2px solid transparent;
             background-clip: padding-box;
@@ -433,6 +578,7 @@ $neon-pink: #ff66c4;
         }
     }
 
+    /* 每一项卡片（暗匣 + 余焰边） */
     .vg__item {
         display: flex;
         align-items: center;
@@ -440,23 +586,23 @@ $neon-pink: #ff66c4;
         gap: 12px;
         padding: 14px 16px;
         border-radius: 14px;
-        background: linear-gradient(90deg, rgba(38, 50, 61, 0.5), rgba(20, 28, 36, 0.6));
-        border: 1px solid rgba(118, 182, 210, 0.08);
-        backdrop-filter: blur(6px);
-        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, opacity 0.2s ease;
+        background: linear-gradient(90deg, rgba(18, 12, 10, 0.72), rgba(12, 8, 6, 0.78));
+        border: 1px solid rgba(180, 110, 60, 0.06);
+        backdrop-filter: blur(4px);
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, opacity 0.18s ease;
 
         &.playing {
-            transform: translateY(-3px);
-            box-shadow: 0 0 24px rgba(130, 220, 255, 0.25);
-            border-color: rgba(130, 220, 255, 0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 0 42px rgba(255, 120, 70, 0.14), inset 0 2px 12px rgba(255, 140, 90, 0.03);
+            border-color: rgba(255, 140, 90, 0.18);
         }
 
         &.locked {
-            opacity: 0.55;
-            filter: grayscale(15%) brightness(0.8);
+            opacity: 0.5;
+            filter: grayscale(20%) brightness(0.82);
 
             .note--locked {
-                color: #6d7c83;
+                color: #6a7376;
                 font-style: italic;
             }
         }
@@ -469,31 +615,31 @@ $neon-pink: #ff66c4;
             .index {
                 min-width: 60px;
                 height: 60px;
-                border-radius: 14px;
+                border-radius: 12px;
                 display: grid;
                 place-items: center;
-                background: linear-gradient(180deg, #a8d8f7 0%, #84c2e9 100%);
-                color: #0b1a22;
+                background: linear-gradient(180deg, #ffdab3 0%, #ffb37a 60%);
+                color: #1a0b06;
                 font-weight: 800;
-                box-shadow: 0 6px 20px rgba(8, 22, 30, 0.25);
-                text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+                box-shadow: 0 6px 20px rgba(8, 6, 6, 0.36);
+                text-shadow: 0 0 6px rgba(0, 0, 0, 0.18);
             }
 
             .info {
                 .name {
-                    color: #e7faff;
+                    color: #ffecd9;
                     font-weight: 700;
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.3px;
                 }
 
                 .note {
-                    color: #8ca3b0;
+                    color: #b9bfc3;
                     font-size: 0.9rem;
                     margin-top: 4px;
                 }
 
                 .note--locked {
-                    color: #687c87;
+                    color: #7a868b;
                 }
             }
         }
@@ -507,46 +653,45 @@ $neon-pink: #ff66c4;
                 &--icon {
                     width: 52px;
                     height: 52px;
-                    border-radius: 14px;
+                    border-radius: 12px;
                     border: none;
                     display: inline-grid;
                     place-items: center;
-                    background: linear-gradient(180deg, #92e0ff, #58b6e4);
-                    color: #03252e;
+                    background: linear-gradient(180deg, #ffcf9f, #ff9f5a);
+                    color: #1a0804;
                     font-weight: 700;
                     cursor: pointer;
-                    box-shadow: 0 0 20px rgba(146, 224, 255, 0.3);
+                    box-shadow: 0 6px 26px rgba(255, 120, 70, 0.12);
                     transition: all 0.15s ease;
 
                     &:hover {
-                        background: linear-gradient(180deg, #a6edff, #66c5ee);
-                        box-shadow: 0 0 24px rgba(146, 224, 255, 0.5);
+                        background: linear-gradient(180deg, #ffd8b4, #ffac6b);
+                        box-shadow: 0 8px 40px rgba(255, 120, 70, 0.18);
+                        transform: translateY(-3px);
                     }
                 }
 
                 &--hint {
-                    color: #62727b;
+                    color: #9aa6a9;
                 }
             }
 
             a {
                 .el-button {
-                    background: linear-gradient(180deg, #7ed4ff, #54b7e7);
+                    background: linear-gradient(180deg, #ffcf9f, #ff9f5a);
                     border: none;
-                    color: #012028;
+                    color: #1a0804;
                     transition: all 0.15s ease;
 
                     &:hover {
-                        background: linear-gradient(180deg, #a2e9ff, #62c6f2);
+                        background: linear-gradient(180deg, #ffd8b4, #ffb07a);
                     }
                 }
             }
         }
     }
 
-
-
-    /* 背景淡入淡出过渡，使用 transition-group 名称 bg-fade */
+    /* 过渡效果组（背景淡入淡出）*/
     .bg-fade-enter-active,
     .bg-fade-leave-active {
         transition: opacity 900ms ease, transform 900ms ease;
@@ -564,7 +709,7 @@ $neon-pink: #ff66c4;
         transform: scale(1);
     }
 
-    /* mobile */
+    /* 移动端微调 */
     @media (max-width: 720px) {
         padding: 12px;
         padding-top: 80px;

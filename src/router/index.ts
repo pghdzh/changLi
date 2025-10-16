@@ -27,8 +27,8 @@ const router = createRouter({
       component: () => import("@/views/resourcesView/index.vue"),
     },
     {
-      path: "/wish",
-      component: () => import("@/views/wishView/index.vue"),
+      path: "/talk",
+      component: () => import("@/views/talkView/index.vue"),
     },
     {
       path: "/voice",

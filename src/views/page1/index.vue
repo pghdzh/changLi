@@ -13,7 +13,7 @@
         </div>
 
         <section class="center" role="main">
-            <h1 class="title">以身焚火 · 长离</h1>
+            <h1 class="title">焚身以火 · 长离</h1>
 
             <div class="subtitle" aria-live="polite">
                 <span class="typed">{{ typed }}</span><span class="cursor" aria-hidden="true">▍</span>

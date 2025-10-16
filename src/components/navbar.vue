@@ -37,8 +37,8 @@ const navItems = [
   { name: "寄语留札", path: "/message" }, // 留言板 — 他人的愿望与寄语存放处
   { name: "棋局典藏", path: "/gallery" }, // 图集 — 立绘、草稿与象征物的典藏
   { name: "匣中典籍", path: "/resources" },// 资料库 — 战术笔记、手稿与素材集合
-  // { name: "焚愿祈引", path: "/wish" },    // 祈愿页 — 仪式化的祈愿与愿望寄托
-  // { name: "回音泠语", path: "/voice" },   // 语音馆 — 低语、回响与短语录音
+  { name: "镜弈心语", path: "/talk" },
+  { name: "流焰低语", path: "/voice" },   // 语音馆 — 低语、回响与短语录音
   // { name: "焚铭录", path: "/thanks" }     // 致谢/纪念 — 铭记与仪式感的结尾页
 ];
 

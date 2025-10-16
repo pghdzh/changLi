@@ -2,14 +2,7 @@
   <div id="app">
     <transition name="fade" v-if="showIntro">
       <div class="intro-container" @click="showIntro = false">
-        <video
-          class="video-background"
-          :src="videoSrc"
-          autoplay
-          muted
-          loop
-          playsinline
-        ></video>
+        <video class="video-background" :src="videoSrc" autoplay muted loop playsinline></video>
         <div class="intro-content" aria-live="polite">
           <div class="intro-inner">
             <!-- 打字机展示的随机语句 -->
@@ -44,7 +37,9 @@ const lines = [
   "焰影摇红，照见人间。",
   "一缕离火，一曲清歌，一梦长离。",
   "于炽热中诞生，在优雅中长存。",
-  "长离之焰，燃尽彷徨，照亮前路。"
+  "长离之焰，燃尽彷徨，照亮前路。",
+  "以我残火，映你长夜。",
+  "我的过去，在火焰中沉默。"
 ] as const;
 
 const displayText = ref("");
@@ -133,6 +128,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   flex-direction: column;
 }
+
 .intro-content {
   width: 100%;
   box-sizing: border-box;
@@ -146,18 +142,21 @@ onBeforeUnmount(() => {
   /* 容器：PC 横向，移动竖向 */
   .intro-inner {
     display: flex;
-    flex-direction: row;    /* 横向排列：站名 在 左，打字文字 在 右（或反之） */
+    flex-direction: row;
+    /* 横向排列：站名 在 左，打字文字 在 右（或反之） */
     align-items: center;
     gap: 20px;
     transition: opacity 420ms ease, transform 420ms ease;
     /* 初始可见状态 */
     opacity: 1;
     transform: translateY(0);
+
     /* typewriter 文本样式 */
     .typewriter-wrap {
       display: flex;
       align-items: center;
-      min-width: 0; /* 方便在 flex 中换行 */
+      min-width: 0;
+      /* 方便在 flex 中换行 */
 
       .typewriter {
         margin: 0;
@@ -165,20 +164,16 @@ onBeforeUnmount(() => {
         font-size: clamp(36px, 7.6vw, 58px);
         line-height: 1.1;
         color: #dff8ff;
-      
-        background: linear-gradient(
-          90deg,
-          #ff6b35,
-          #ff9a66
-        );
+
+        background: linear-gradient(90deg,
+            #ff6b35,
+            #ff9a66);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
         -webkit-text-fill-color: transparent;
         -webkit-text-stroke: 0.2px rgba(0, 0, 0, 0.06);
         text-shadow: 0 6px 18px rgba(6, 40, 56, 0.22);
-        white-space: nowrap;
-        overflow: hidden;
       }
     }
   }
@@ -192,9 +187,10 @@ onBeforeUnmount(() => {
     align-items: center;
     text-align: center;
   }
+
   .typewriter {
-    font-size: clamp(14px, 5.8vw, 20px);
-    white-space: normal;
+    font-size: clamp(10px, 5.8vw, 14px);
+  
     max-width: 92vw;
   }
 
