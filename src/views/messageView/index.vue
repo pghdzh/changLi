@@ -348,6 +348,7 @@ onBeforeUnmount(() => {
       gap: 16px;
       position: relative;
       z-index: 2;
+      overflow-y: auto;
     }
 
     /* skeleton 样式替换成守岸人色系 */
