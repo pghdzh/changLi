@@ -9,9 +9,20 @@
         </button>
       </div>
       <div class="gallery-grid">
-        <div v-for="(img, index) in images" :key="img.id" class="card" @click="openLightbox(index)" ref="cards">
+        <div
+          v-for="(img, index) in images"
+          :key="img.id"
+          class="card"
+          @click="openLightbox(index)"
+          ref="cards"
+        >
           <div class="card-inner">
-            <img :src="img.src" :alt="img.alt" loading="lazy" @load="onImageLoad($event)" />
+            <img
+              :src="img.src"
+              :alt="img.alt"
+              loading="lazy"
+              @load="onImageLoad($event)"
+            />
             <div class="overlay">
               <span>查看大图</span>
             </div>
@@ -36,7 +47,12 @@
       </div>
       <transition name="fade">
         <ul v-if="expanded" class="ranking-list">
-          <li v-for="(item, idx) in rankingList" :key="idx" class="ranking-item" :class="`rank-${idx + 1}`">
+          <li
+            v-for="(item, idx) in rankingList"
+            :key="idx"
+            class="ranking-item"
+            :class="`rank-${idx + 1}`"
+          >
             <span class="rank">{{ idx + 1 }}</span>
             <span class="name">{{ item.nickname }}</span>
             <span class="count">{{ item.count }} 张</span>
@@ -53,12 +69,19 @@
     </div>
 
     <!-- 上传弹窗 -->
-    <div v-if="uploadModalOpen" class="upload-modal-overlay" @click.self="closeUploadModal">
+    <div
+      v-if="uploadModalOpen"
+      class="upload-modal-overlay"
+      @click.self="closeUploadModal"
+    >
       <div class="upload-modal">
         <h3>批量上传图片</h3>
         <div class="tip-container">
           <ul class="tips-list">
-            <li>审核规则： 1.不要色情倾向（不要露三点，我怕被封） 2.要我能认出是长离。</li>
+            <li>
+              审核规则： 1.不要色情倾向（不要露三点，我怕被封）
+              2.要我能认出是长离。
+            </li>
             <li>
               由于没有用户系统，我这边不好做审核反馈，但只要显示上传成功，我这边肯定能收到。
             </li>
@@ -80,7 +103,13 @@
         </label>
         <label>
           选择图片（最多 {{ remaining }} 张）：
-          <input ref="fileInput" type="file" multiple accept="image/*" @change="handleFileSelect" />
+          <input
+            ref="fileInput"
+            type="file"
+            multiple
+            accept="image/*"
+            @change="handleFileSelect"
+          />
         </label>
         <p class="tip" v-if="selectedFiles.length">
           已选 {{ selectedFiles.length }} 张
@@ -95,8 +124,13 @@
     </div>
 
     <div class="floating-chibis">
-      <img v-for="(pet, i) in chibiList" :key="i" :src="pet.src" :style="{ top: pet.top + 'px', left: pet.left + 'px' }"
-        class="chibi-img" />
+      <img
+        v-for="(pet, i) in chibiList"
+        :key="i"
+        :src="pet.src"
+        :style="{ top: pet.top + 'px', left: pet.left + 'px' }"
+        class="chibi-img"
+      />
     </div>
   </div>
 </template>
@@ -175,7 +209,11 @@ const page = 1;
 const pageSize = 99;
 
 const fetchRanking = async () => {
-  const res = await getRankingList({ page, pageSize, character_key: "changLi" });
+  const res = await getRankingList({
+    page,
+    pageSize,
+    character_key: "changLi",
+  });
   if (res.success) {
     rankingList.value = res.data;
   } else {
@@ -213,6 +251,14 @@ async function observeNewCards(startIndex = 0) {
     observerCard.observe(cards[i]);
   }
 }
+const fixImageUrl = (url: string): string => {
+  if (url.includes("127.0.0.1")) {
+    // 将 127.0.0.1 替换为当前页面的完整源（协议+域名）
+    return url.replace("http://127.0.0.1", window.location.origin);
+  }
+  return url;
+};
+
 const imgTotal = ref(0);
 async function loadNextPage() {
   if (loading.value || finished.value) return;
@@ -230,7 +276,7 @@ async function loadNextPage() {
     const list = (
       res.images as Array<{ url: string; like_count: number; id: number }>
     ).map((item) => ({
-      src: item.url,
+      src: fixImageUrl(item.url),
       alt: "",
       likeCount: item.like_count,
       id: item.id, // 如果需要的话，方便点赞用
@@ -599,7 +645,8 @@ $neon-pink: #ff66c4;
         padding: 10px 28px 10px 56px;
         font-size: 1rem;
         line-height: 1;
-        font-family: "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+        font-family: "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial,
+          sans-serif;
         cursor: pointer;
         border-radius: 28px;
         position: relative;
@@ -607,21 +654,21 @@ $neon-pink: #ff66c4;
         border: 1px solid rgba(255, 120, 70, 0.06);
 
         /* 暗匣底 + 轻微暖光纹理（写死颜色） */
-        background: linear-gradient(90deg,
-            rgba(18, 10, 8, 0.82) 0%,
-            rgba(12, 8, 6, 0.92) 50%,
-            rgba(10, 6, 4, 0.96) 100%);
+        background: linear-gradient(
+          90deg,
+          rgba(18, 10, 8, 0.82) 0%,
+          rgba(12, 8, 6, 0.92) 50%,
+          rgba(10, 6, 4, 0.96) 100%
+        );
         color: #ffb890;
         /* 暖金文本 */
-        box-shadow:
-          0 10px 28px rgba(8, 4, 2, 0.56),
-          /* 深色投影 */
-          inset 0 1px 0 rgba(255, 160, 110, 0.02);
+        box-shadow: 0 10px 28px rgba(8, 4, 2, 0.56),
+          /* 深色投影 */ inset 0 1px 0 rgba(255, 160, 110, 0.02);
         /* 内部微光 */
 
         transition: transform 200ms cubic-bezier(0.2, 0.9, 0.25, 1),
-          box-shadow 200ms ease, background 260ms ease,
-          color 160ms ease, filter 200ms ease;
+          box-shadow 200ms ease, background 260ms ease, color 160ms ease,
+          filter 200ms ease;
         -webkit-tap-highlight-color: transparent;
         will-change: transform, box-shadow, filter;
 
@@ -636,15 +683,26 @@ $neon-pink: #ff66c4;
           height: 22px;
           border-radius: 4px;
           /* 由暖金到铜金的微渐变，形似小徽记/棋纹 */
-          background: linear-gradient(180deg,
-              rgba(255, 217, 184, 0.98),
-              rgba(255, 154, 102, 0.94));
-          box-shadow: 0 6px 18px rgba(255, 120, 70, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+          background: linear-gradient(
+            180deg,
+            rgba(255, 217, 184, 0.98),
+            rgba(255, 154, 102, 0.94)
+          );
+          box-shadow: 0 6px 18px rgba(255, 120, 70, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.5);
           /* 稍微修改裁切形状，像火羽 / 纹章 */
-          clip-path: polygon(50% 0, 78% 25%, 100% 45%, 50% 100%, 0% 45%, 22% 25%);
+          clip-path: polygon(
+            50% 0,
+            78% 25%,
+            100% 45%,
+            50% 100%,
+            0% 45%,
+            22% 25%
+          );
           pointer-events: none;
           z-index: 3;
-          transition: transform 220ms ease, opacity 220ms ease, box-shadow 220ms ease;
+          transition: transform 220ms ease, opacity 220ms ease,
+            box-shadow 220ms ease;
         }
 
         /* 轻微的内侧余焰环（可见但不抢眼） */
@@ -657,7 +715,11 @@ $neon-pink: #ff66c4;
           width: 44px;
           height: 44px;
           border-radius: 50%;
-          background: radial-gradient(circle at 35% 35%, rgba(255, 180, 120, 0.06), transparent 45%);
+          background: radial-gradient(
+            circle at 35% 35%,
+            rgba(255, 180, 120, 0.06),
+            transparent 45%
+          );
           filter: blur(6px);
           pointer-events: none;
           opacity: 0.9;
@@ -667,41 +729,39 @@ $neon-pink: #ff66c4;
         /* hover：暗底微变，余焰徽记放大且发亮 */
         &:hover {
           transform: translateY(-5px) scale(1.02);
-          box-shadow:
-            0 22px 66px rgba(8, 4, 2, 0.66),
-            0 0 44px rgba(255, 120, 70, 0.10);
+          box-shadow: 0 22px 66px rgba(8, 4, 2, 0.66),
+            0 0 44px rgba(255, 120, 70, 0.1);
           filter: saturate(1.06) brightness(1.02);
           color: #ff8a4a;
-          background: linear-gradient(90deg,
-              rgba(18, 10, 8, 0.88) 0%,
-              rgba(12, 8, 6, 0.94) 50%,
-              rgba(10, 6, 4, 0.98) 100%);
+          background: linear-gradient(
+            90deg,
+            rgba(18, 10, 8, 0.88) 0%,
+            rgba(12, 8, 6, 0.94) 50%,
+            rgba(10, 6, 4, 0.98) 100%
+          );
         }
 
         &:hover::after {
           transform: translateY(-56%) rotate(-6deg) scale(1.12);
-          box-shadow: 0 10px 30px rgba(255, 140, 80, 0.18), inset 0 2px 6px rgba(255, 255, 255, 0.2);
+          box-shadow: 0 10px 30px rgba(255, 140, 80, 0.18),
+            inset 0 2px 6px rgba(255, 255, 255, 0.2);
           opacity: 1;
         }
 
         /* active（按下）反馈 */
         &:active {
           transform: translateY(-2px) scale(0.995);
-          box-shadow:
-            0 10px 28px rgba(8, 4, 2, 0.5),
+          box-shadow: 0 10px 28px rgba(8, 4, 2, 0.5),
             0 0 20px rgba(255, 120, 70, 0.06);
         }
 
         /* keyboard focus 可见环（无障碍） */
         &:focus-visible {
           outline: none;
-          box-shadow:
-            0 22px 66px rgba(8, 4, 2, 0.66),
+          box-shadow: 0 22px 66px rgba(8, 4, 2, 0.66),
             0 0 0 6px rgba(255, 140, 80, 0.06);
         }
-
       }
-
     }
 
     .gallery-grid {
@@ -719,7 +779,6 @@ $neon-pink: #ff66c4;
         }
 
         &.loaded {
-
           // Blur-up & grayscale removed
           .card-inner img {
             filter: none;
@@ -923,10 +982,12 @@ $neon-pink: #ff66c4;
     user-select: none;
 
     color: #022b33;
-    background: linear-gradient(90deg,
-        rgba(255, 217, 184, 0.98) 0%,
-        rgba(255, 154, 102, 0.98) 52%,
-        rgba(255, 107, 53, 1) 100%);
+    background: linear-gradient(
+      90deg,
+      rgba(255, 217, 184, 0.98) 0%,
+      rgba(255, 154, 102, 0.98) 52%,
+      rgba(255, 107, 53, 1) 100%
+    );
     border-radius: 28px;
 
     backdrop-filter: blur(6px) saturate(120%);
@@ -934,8 +995,7 @@ $neon-pink: #ff66c4;
 
     /* 卡片质感：深色阴影 + 冰蓝光晕 */
     box-shadow: 0 14px 40px rgba(2, 20, 28, 0.55),
-      /* 深海投影 */
-      0 0 28px rgba(80, 200, 240, 0.08);
+      /* 深海投影 */ 0 0 28px rgba(80, 200, 240, 0.08);
     /* 冰蓝光晕 */
 
     overflow: visible;
@@ -960,9 +1020,11 @@ $neon-pink: #ff66c4;
     justify-content: center;
 
     /* 暗匣遮罩 + 微暖余焰渐变（写死颜色）*/
-    background: linear-gradient(180deg,
-        rgba(8, 5, 3, 0.86),
-        rgba(6, 4, 3, 0.78));
+    background: linear-gradient(
+      180deg,
+      rgba(8, 5, 3, 0.86),
+      rgba(6, 4, 3, 0.78)
+    );
 
     /* 轻微模糊以保留底下内容感知 */
     backdrop-filter: blur(10px) saturate(1.05);
@@ -974,10 +1036,11 @@ $neon-pink: #ff66c4;
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background:
-        radial-gradient(700px 260px at 50% 28%,
+      background: radial-gradient(
+          700px 260px at 50% 28%,
           rgba(255, 140, 80, 0.05),
-          transparent 14%),
+          transparent 14%
+        ),
         linear-gradient(180deg, rgba(0, 0, 0, 0.22), transparent 40%);
       mix-blend-mode: screen;
     }
@@ -998,13 +1061,16 @@ $neon-pink: #ff66c4;
     -webkit-font-smoothing: antialiased;
 
     /* 背景：更偏暖的暗匣质感 */
-    background: linear-gradient(180deg,
-        rgba(18, 10, 8, 0.94),
-        rgba(12, 8, 6, 0.92));
+    background: linear-gradient(
+      180deg,
+      rgba(18, 10, 8, 0.94),
+      rgba(12, 8, 6, 0.92)
+    );
     border: 1px solid rgba(255, 120, 70, 0.06);
     backdrop-filter: blur(6px) saturate(1.02);
     -webkit-backdrop-filter: blur(6px) saturate(1.02);
-    box-shadow: 0 30px 90px rgba(6, 4, 2, 0.78), inset 0 1px 0 rgba(255, 160, 110, 0.02);
+    box-shadow: 0 30px 90px rgba(6, 4, 2, 0.78),
+      inset 0 1px 0 rgba(255, 160, 110, 0.02);
 
     /* 暖光边缘（伪元素） */
     &::before {
@@ -1013,10 +1079,12 @@ $neon-pink: #ff66c4;
       inset: -2px;
       border-radius: 18px;
       pointer-events: none;
-      background: linear-gradient(90deg,
-          rgba(255, 160, 110, 0.06),
-          rgba(255, 120, 70, 0.04),
-          rgba(255, 160, 110, 0.04));
+      background: linear-gradient(
+        90deg,
+        rgba(255, 160, 110, 0.06),
+        rgba(255, 120, 70, 0.04),
+        rgba(255, 160, 110, 0.04)
+      );
       filter: blur(14px);
       mix-blend-mode: screen;
       opacity: 0.95;
@@ -1048,9 +1116,11 @@ $neon-pink: #ff66c4;
     .tip-container {
       margin-top: 18px;
       padding: 14px 18px;
-      background: linear-gradient(180deg,
-          rgba(14, 8, 6, 0.60),
-          rgba(10, 6, 4, 0.56));
+      background: linear-gradient(
+        180deg,
+        rgba(14, 8, 6, 0.6),
+        rgba(10, 6, 4, 0.56)
+      );
       border-left: 4px solid rgba(255, 140, 90, 0.12);
       border-radius: 10px;
       backdrop-filter: blur(4px);
@@ -1077,11 +1147,13 @@ $neon-pink: #ff66c4;
             height: 14px;
             border-radius: 50%;
             /* 由冰蓝改为余焰小徽记（暖色） */
-            background: radial-gradient(circle at 30% 30%,
-                #ffd9b8 0%,
-                rgba(255, 160, 110, 0.88) 20%,
-                #ff9a66 60%,
-                #ff6b35 100%);
+            background: radial-gradient(
+              circle at 30% 30%,
+              #ffd9b8 0%,
+              rgba(255, 160, 110, 0.88) 20%,
+              #ff9a66 60%,
+              #ff6b35 100%
+            );
             box-shadow: 0 6px 18px rgba(255, 120, 70, 0.06);
           }
 
@@ -1114,13 +1186,16 @@ $neon-pink: #ff66c4;
         padding: 12px 14px;
         border-radius: 10px;
         border: 1px solid rgba(255, 120, 70, 0.06);
-        background: linear-gradient(180deg,
-            rgba(12, 8, 6, 0.6),
-            rgba(10, 6, 4, 0.64));
+        background: linear-gradient(
+          180deg,
+          rgba(12, 8, 6, 0.6),
+          rgba(10, 6, 4, 0.64)
+        );
         color: rgba(245, 232, 220, 0.96);
         font-size: 0.95rem;
         outline: none;
-        transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease,
+          transform 0.12s ease;
         box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.44);
       }
 
@@ -1133,7 +1208,8 @@ $neon-pink: #ff66c4;
       input[type="file"]:focus,
       textarea:focus {
         border-color: rgba(255, 140, 90, 0.36);
-        box-shadow: 0 12px 36px rgba(255, 120, 70, 0.06), 0 2px 8px rgba(255, 160, 110, 0.04);
+        box-shadow: 0 12px 36px rgba(255, 120, 70, 0.06),
+          0 2px 8px rgba(255, 160, 110, 0.04);
         transform: translateY(-1px);
       }
     }
@@ -1154,30 +1230,37 @@ $neon-pink: #ff66c4;
         cursor: pointer;
         font-weight: 800;
         font-size: 0.95rem;
-        transition: background 0.22s ease, box-shadow 0.22s ease, transform 0.12s ease;
+        transition: background 0.22s ease, box-shadow 0.22s ease,
+          transform 0.12s ease;
         min-width: 96px;
         color: #2b1208;
       }
 
       /* 主按钮：余焰渐变 */
       button:not(.cancel) {
-        background: linear-gradient(135deg,
-            #ffd9b8 0%,
-            #ffb890 45%,
-            #ff8a4a 100%);
-        box-shadow: 0 12px 36px rgba(255, 120, 70, 0.12), 0 4px 18px rgba(160, 90, 40, 0.04);
+        background: linear-gradient(
+          135deg,
+          #ffd9b8 0%,
+          #ffb890 45%,
+          #ff8a4a 100%
+        );
+        box-shadow: 0 12px 36px rgba(255, 120, 70, 0.12),
+          0 4px 18px rgba(160, 90, 40, 0.04);
         color: #2b1208;
       }
 
       button:not(.cancel):hover:not(:disabled) {
         transform: translateY(-4px);
-        box-shadow: 0 22px 66px rgba(8, 4, 2, 0.32), 0 8px 28px rgba(255, 120, 70, 0.08);
+        box-shadow: 0 22px 66px rgba(8, 4, 2, 0.32),
+          0 8px 28px rgba(255, 120, 70, 0.08);
       }
 
       button:not(.cancel):disabled {
-        background: linear-gradient(135deg,
-            rgba(60, 40, 36, 0.48),
-            rgba(50, 40, 36, 0.44));
+        background: linear-gradient(
+          135deg,
+          rgba(60, 40, 36, 0.48),
+          rgba(50, 40, 36, 0.44)
+        );
         opacity: 0.6;
         cursor: not-allowed;
         box-shadow: none;
@@ -1197,7 +1280,6 @@ $neon-pink: #ff66c4;
         background: rgba(255, 140, 90, 0.03);
       }
     }
-
   }
 
   .ranking-panel {
@@ -1208,17 +1290,21 @@ $neon-pink: #ff66c4;
     right: 12px;
     z-index: 1200;
     color: #f5e8dc;
-    font-family: "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+    font-family: "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial,
+      sans-serif;
 
     /* 暗匣底与微暖内光（写死颜色） */
-    background: linear-gradient(180deg,
-        rgba(12, 8, 6, 0.94),
-        rgba(10, 6, 4, 0.92));
+    background: linear-gradient(
+      180deg,
+      rgba(12, 8, 6, 0.94),
+      rgba(10, 6, 4, 0.92)
+    );
     border-radius: 18px;
     border: 1px solid rgba(255, 120, 70, 0.06);
     -webkit-backdrop-filter: blur(8px) saturate(1.02);
     backdrop-filter: blur(8px) saturate(1.02);
-    box-shadow: 0 18px 56px rgba(6, 4, 2, 0.84), inset 0 1px 0 rgba(255, 160, 110, 0.02);
+    box-shadow: 0 18px 56px rgba(6, 4, 2, 0.84),
+      inset 0 1px 0 rgba(255, 160, 110, 0.02);
 
     &.collapsed {
       height: auto;
@@ -1248,11 +1334,16 @@ $neon-pink: #ff66c4;
       .toggle-icon {
         font-size: 1rem;
         color: #ffb57a;
-        background: linear-gradient(180deg, rgba(30, 18, 12, 0.48), rgba(24, 14, 10, 0.36));
+        background: linear-gradient(
+          180deg,
+          rgba(30, 18, 12, 0.48),
+          rgba(24, 14, 10, 0.36)
+        );
         padding: 6px 8px;
         border-radius: 9px;
         border: 1px solid rgba(255, 120, 70, 0.06);
-        box-shadow: 0 6px 14px rgba(6, 4, 4, 0.5), inset 0 1px 0 rgba(255, 160, 110, 0.02);
+        box-shadow: 0 6px 14px rgba(6, 4, 4, 0.5),
+          inset 0 1px 0 rgba(255, 160, 110, 0.02);
         transition: transform 220ms, box-shadow 220ms;
       }
 
@@ -1260,7 +1351,8 @@ $neon-pink: #ff66c4;
       &:hover .toggle-icon,
       &:focus-within .toggle-icon {
         transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(255, 120, 70, 0.08), inset 0 1px 0 rgba(255, 160, 110, 0.02);
+        box-shadow: 0 12px 30px rgba(255, 120, 70, 0.08),
+          inset 0 1px 0 rgba(255, 160, 110, 0.02);
       }
     }
 
@@ -1278,7 +1370,11 @@ $neon-pink: #ff66c4;
       }
 
       &::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, rgba(255, 140, 80, 0.14), rgba(255, 100, 40, 0.10));
+        background: linear-gradient(
+          180deg,
+          rgba(255, 140, 80, 0.14),
+          rgba(255, 100, 40, 0.1)
+        );
         border-radius: 8px;
         border: 1px solid rgba(255, 160, 110, 0.02);
       }
@@ -1298,22 +1394,33 @@ $neon-pink: #ff66c4;
       cursor: default;
 
       /* 暗匣小卡片，微暖边线 */
-      background: linear-gradient(180deg, rgba(14, 10, 8, 0.56), rgba(12, 8, 6, 0.54));
+      background: linear-gradient(
+        180deg,
+        rgba(14, 10, 8, 0.56),
+        rgba(12, 8, 6, 0.54)
+      );
 
-      transition: transform 260ms cubic-bezier(.2, .9, .3, 1), box-shadow 260ms, background 260ms, color 200ms;
+      transition: transform 260ms cubic-bezier(0.2, 0.9, 0.3, 1),
+        box-shadow 260ms, background 260ms, color 200ms;
       position: relative;
 
       &:hover {
         transform: translateY(-6px);
-        box-shadow: 0 18px 48px rgba(8, 4, 2, 0.72), 0 0 28px rgba(255, 120, 70, 0.04);
-        background: linear-gradient(90deg, rgba(18, 10, 8, 0.66), rgba(14, 8, 6, 0.62));
+        box-shadow: 0 18px 48px rgba(8, 4, 2, 0.72),
+          0 0 28px rgba(255, 120, 70, 0.04);
+        background: linear-gradient(
+          90deg,
+          rgba(18, 10, 8, 0.66),
+          rgba(14, 8, 6, 0.62)
+        );
       }
 
       /* 可键盘 focus 的高亮态（便于可访问性） */
       &:focus-within,
       &:focus {
         outline: none;
-        box-shadow: 0 18px 48px rgba(255, 120, 70, 0.06), 0 0 0 4px rgba(255, 120, 70, 0.04);
+        box-shadow: 0 18px 48px rgba(255, 120, 70, 0.06),
+          0 0 0 4px rgba(255, 120, 70, 0.04);
         transform: translateY(-4px);
       }
 
@@ -1351,10 +1458,16 @@ $neon-pink: #ff66c4;
 
       /* ---------- 前三名强化（余焰 / 铜金 / 仪式感） ---------- */
       &.rank-1 {
-        background: linear-gradient(135deg, #ffd9b8 0%, #ffb890 45%, #ff9a66 100%);
+        background: linear-gradient(
+          135deg,
+          #ffd9b8 0%,
+          #ffb890 45%,
+          #ff9a66 100%
+        );
         color: #2b1208;
 
-        box-shadow: 0 18px 56px rgba(255, 140, 70, 0.14), 0 0 30px rgba(255, 160, 110, 0.06);
+        box-shadow: 0 18px 56px rgba(255, 140, 70, 0.14),
+          0 0 30px rgba(255, 160, 110, 0.06);
 
         .rank {
           color: #2b1208;
@@ -1371,7 +1484,12 @@ $neon-pink: #ff66c4;
       }
 
       &.rank-2 {
-        background: linear-gradient(135deg, #ffdec6 0%, #ffb890 55%, #d98a5a 100%);
+        background: linear-gradient(
+          135deg,
+          #ffdec6 0%,
+          #ffb890 55%,
+          #d98a5a 100%
+        );
         color: #2b1208;
 
         box-shadow: 0 14px 48px rgba(200, 110, 60, 0.12);
@@ -1390,7 +1508,12 @@ $neon-pink: #ff66c4;
       }
 
       &.rank-3 {
-        background: linear-gradient(135deg, rgba(255, 200, 160, 0.12) 0%, rgba(255, 160, 110, 0.16) 60%, rgba(200, 110, 60, 0.22) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(255, 200, 160, 0.12) 0%,
+          rgba(255, 160, 110, 0.16) 60%,
+          rgba(200, 110, 60, 0.22) 100%
+        );
         color: #ffd9b8;
 
         box-shadow: 0 10px 36px rgba(160, 90, 40, 0.12);
@@ -1419,9 +1542,6 @@ $neon-pink: #ff66c4;
     .fade-leave-to {
       opacity: 0;
     }
-
-
   }
-
 }
 </style>
