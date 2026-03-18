@@ -1,12 +1,22 @@
 <template>
   <div class="yuzuki-resources">
     <div class="carousel carousel1" aria-hidden="true">
-      <img v-for="(src, idx) in randomFive" :key="idx" :src="src" class="carousel-image"
-        :class="{ active: idx === currentIndex }" />
+      <img
+        v-for="(src, idx) in randomFive"
+        :key="idx"
+        :src="src"
+        class="carousel-image"
+        :class="{ active: idx === currentIndex }"
+      />
     </div>
     <div class="carousel carousel2" aria-hidden="true">
-      <img v-for="(src, idx) in randomFive2" :key="idx" :src="src" class="carousel-image"
-        :class="{ active: idx === currentIndex }" />
+      <img
+        v-for="(src, idx) in randomFive2"
+        :key="idx"
+        :src="src"
+        class="carousel-image"
+        :class="{ active: idx === currentIndex }"
+      />
     </div>
     <header class="hero">
       <div class="hero-inner">
@@ -18,21 +28,49 @@
     <main class="container">
       <section class="uploader" :class="{ collapsed: uploaderCollapsed }">
         <div class="uploader-head">
-          <button class="toggle" @click="toggleUploader" :aria-expanded="!uploaderCollapsed">
+          <button
+            class="toggle"
+            @click="toggleUploader"
+            :aria-expanded="!uploaderCollapsed"
+          >
             <span v-if="uploaderCollapsed">展开上传区</span>
             <span v-else>收起上传区</span>
           </button>
         </div>
 
-        <form @submit.prevent="addResource" class="upload-form" :aria-hidden="uploaderCollapsed">
+        <form
+          @submit.prevent="addResource"
+          class="upload-form"
+          :aria-hidden="uploaderCollapsed"
+        >
           <div class="row">
-            <input v-model="form.title" type="text" placeholder="标题（必填，如果有解压码之类的也写这里吧）" aria-label="标题" />
-            <input v-model="form.type" type="text" placeholder="链接类型(网页链接、b站视频、网盘链接等等)" aria-label="来源" />
+            <input
+              v-model="form.title"
+              type="text"
+              placeholder="标题（必填，如果有解压码之类的也写这里吧）"
+              aria-label="标题"
+            />
+            <input
+              v-model="form.type"
+              type="text"
+              placeholder="链接类型(网页链接、b站视频、网盘链接等等)"
+              aria-label="来源"
+            />
           </div>
 
           <div class="row">
-            <input v-model="form.uploader" type="text" placeholder="上传人（可选）" aria-label="上传人" />
-            <input v-model="form.link" type="url" placeholder="链接(只输入网址不能有中文)" aria-label="链接" />
+            <input
+              v-model="form.uploader"
+              type="text"
+              placeholder="上传人（可选）"
+              aria-label="上传人"
+            />
+            <input
+              v-model="form.link"
+              type="url"
+              placeholder="链接(只输入网址不能有中文)"
+              aria-label="链接"
+            />
           </div>
 
           <div class="actions">
@@ -57,7 +95,13 @@
 
         <ul class="items">
           <li v-for="item in sortedResources" :key="item.id" class="item">
-            <a :href="item.link" target="_blank" rel="noopener noreferrer" class="title">{{ item.title }}</a>
+            <a
+              :href="item.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="title"
+              >{{ item.title }}</a
+            >
 
             <div class="meta">
               <div class="left">
@@ -67,12 +111,21 @@
               </div>
 
               <div class="right">
-                <button @click.prevent="handleLike(item)" :aria-pressed="likedIds.has(String(item.id))" class="like-btn"
-                  :class="{ active: likedIds.has(String(item.id)) }">
-                  <img :src="likedIds.has(String(item.id))
-                    ? '/icons/heart-red-filled.svg'
-                    : '/icons/heart-red-outline.svg'
-                    " class="heart-icon" alt="heart" />
+                <button
+                  @click.prevent="handleLike(item)"
+                  :aria-pressed="likedIds.has(String(item.id))"
+                  class="like-btn"
+                  :class="{ active: likedIds.has(String(item.id)) }"
+                >
+                  <img
+                    :src="
+                      likedIds.has(String(item.id))
+                        ? '/icons/heart-red-filled.svg'
+                        : '/icons/heart-red-outline.svg'
+                    "
+                    class="heart-icon"
+                    alt="heart"
+                  />
                   <span class="count">{{ item.likes }}</span>
                 </button>
 
@@ -344,17 +397,28 @@ function formatTime(iso: string) {
 }
 </script>
 
-<style lang="scss" scoped>
-.yuzuki-resources {
-  background: linear-gradient(135deg, #e2a088 0%, #e38d79 45%, #a14b2b 100%);
-  color: #dff8ff;
-  display: flex;
-  flex-direction: column;
-  padding-top: 60px;
-  font-family: "Noto Sans SC", "PingFang SC", "Helvetica Neue", Arial,
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
+<style scoped lang="scss">
+/* ========== 长离主题色系 ========== */
 
+.yuzuki-resources {
+  --deep-bg: #0a0503;
+  --accent: #ff4f1e;
+  --accent-2: #ff974f;
+  --accent-3: #ffcb9a;
+  --text-light: #f7e4d4;
+  --glass-bg: rgba(10, 5, 3, 0.7);
+  --flame-glow: rgba(255, 80, 20, 0.3);
+  --card-bg: rgba(15, 8, 4, 0.6);
+  --border-glow: rgba(255, 140, 60, 0.2);
+  position: relative;
+  min-height: 100vh;
+  padding-top: 60px;
+  background: linear-gradient(135deg, #1a0c06 0%, #0a0503 50%, #1f0e07 100%);
+  color: var(--text-light);
+  font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+
+  /* ========== 轮播背景（保留原有，调整遮罩颜色） ========== */
   .carousel {
     position: absolute;
     inset: 0;
@@ -365,10 +429,11 @@ function formatTime(iso: string) {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg,
-          rgba(2, 8, 14, 0.15),
-          rgba(2, 8, 14, 0.25));
-      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        rgba(10, 5, 3, 0.3),
+        rgba(10, 5, 3, 0.45)
+      );
       z-index: 1;
     }
 
@@ -378,29 +443,27 @@ function formatTime(iso: string) {
       height: 100%;
       object-fit: cover;
       opacity: 0;
-      filter: blur(0.8px) saturate(0.92);
+      filter: blur(1px) saturate(0.8);
+      transition: opacity 1.5s ease;
 
       &.active {
         opacity: 1;
-        transform: scale(1);
       }
     }
   }
 
-  /* 可在小屏使用第二组竖图，避免裁切失衡 */
   .carousel2 {
     display: none;
   }
 
-  /* 顶区 hero（深海毛玻璃面板） */
+  /* ========== 顶部 HERO ========== */
   .hero {
     padding: 18px 12px;
-    background: linear-gradient(180deg,
-        rgba(40, 29, 6, 0.64),
-        rgba(30, 20, 4, 0.52));
-    -webkit-backdrop-filter: blur(2px) saturate(120%);
-    backdrop-filter: blur(2px) saturate(120%);
-    border-bottom: 1px solid rgba(110, 200, 255, 0.04);
+    background: rgba(10, 5, 3, 0.6);
+    backdrop-filter: blur(2px);
+    border-bottom: 1px solid rgba(255, 140, 60, 0.2);
+    position: relative;
+    z-index: 10;
 
     .hero-inner {
       max-width: 1000px;
@@ -412,350 +475,388 @@ function formatTime(iso: string) {
       h1 {
         margin: 0;
         font-size: 20px;
-        display: inline-block;
-        width: auto;
         font-weight: 900;
-        letter-spacing: 0.6px;
-        color: #ff6b35;
-        text-shadow: 0 6px 20px rgba(0, 30, 40, 0.28);
+        background: linear-gradient(135deg, #ffdbb0, #ffb47b, #ff6324);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        letter-spacing: 1px;
       }
 
       .subtitle {
         margin-top: 6px;
-        color: rgba(255, 227, 190, 0.9);
+        color: #ffb47b;
         font-size: 13px;
+        font-style: italic;
       }
     }
   }
 
+  /* ========== 主容器 ========== */
   .container {
+    position: relative;
+    z-index: 10;
     max-width: 1000px;
     margin: 16px auto;
     padding: 0 12px;
     width: 100%;
     box-sizing: border-box;
-    z-index: 99;
+  }
 
-    /* 上传区（深海毛玻璃 + 冰蓝高光） */
-    .uploader {
-      border-radius: 14px;
-      padding: 0;
-      box-shadow: 0 18px 56px rgba(0, 10, 16, 0.6);
-      border: 1px solid rgba(110, 200, 255, 0.04);
+  /* ========== 上传区（毛玻璃火焰） ========== */
+  .uploader {
+    border-radius: 28px;
+    padding: 0;
+    background: rgba(10, 5, 3, 0.6);
+    backdrop-filter: blur(1px);
+    border: 1px solid rgba(255, 140, 60, 0.2);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s;
 
-      .uploader-head {
-        display: flex;
-        justify-content: flex-end;
-        padding: 10px 12px;
+    &:hover {
+      border-color: rgba(255, 140, 60, 0.4);
+      box-shadow: 0 25px 50px -10px rgba(255, 100, 30, 0.2);
+    }
 
-        .toggle {
-          background: transparent;
-          border: 1px solid rgba(110, 200, 255, 0.06);
-          color: #ff9a66;
-          padding: 6px 10px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-weight: 700;
-          transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
-          box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.35);
-        }
-      }
+    .uploader-head {
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 16px;
 
-      .upload-form {
-        padding: 14px;
-        max-height: 1600px;
-        overflow: hidden;
-        transition: max-height 280ms ease, padding 280ms ease;
+      .toggle {
+        background: rgba(30, 15, 8, 0.6);
+        border: 1px solid rgba(255, 140, 60, 0.3);
+        color: #ffb47b;
+        padding: 6px 16px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-weight: 700;
+        transition: all 0.3s;
 
-        .row {
-          display: flex;
-          gap: 8px;
-          margin-bottom: 10px;
-
-          input,
-          select {
-            flex: 1 1 0;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(204, 113, 61, 0.06);
-            font-size: 14px;
-            background: linear-gradient(180deg,
-                rgba(26, 16, 3, 0.22),
-                rgba(40, 28, 6, 0.14));
-            color: #f8c2a7;
-            font-weight: bold;
-            outline: none;
-            transition: box-shadow 0.16s, border-color 0.16s, transform 0.08s;
-            box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.45);
-          }
-
-          select {
-            max-width: 140px;
-          }
-
-          input::placeholder,
-          textarea::placeholder,
-          select::placeholder {
-            color: #fff;
-
-          }
-
-          input:focus,
-          select:focus {
-            border-color: rgba(255, 170, 110, 0.36);
-            box-shadow: 0 12px 36px rgba(40, 140, 180, 0.08);
-            transform: translateY(-1px);
-          }
-        }
-
-        .actions {
-          display: flex;
-          gap: 8px;
-          align-items: center;
-
-          .btn {
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: none;
-            font-weight: 700;
-            cursor: pointer;
-
-            &.primary {
-              background: linear-gradient(135deg,
-                  #f5e8dc 0%,
-                  #ff9a66 55%,
-                  #ff6b35 100%);
-              color: #022a32;
-              box-shadow: 0 12px 36px rgba(20, 110, 140, 0.12);
-              transition: transform 0.12s ease, box-shadow 0.14s ease;
-            }
-
-            &.primary:active {
-              transform: translateY(1px) scale(0.998);
-              box-shadow: 0 6px 16px rgba(10, 60, 80, 0.08);
-            }
-
-            &.secondary {
-              background: transparent;
-              color: rgba(190, 245, 255, 0.9);
-              border: 1px solid rgba(110, 200, 255, 0.06);
-            }
-          }
-        }
-      }
-
-      &.collapsed {
-        .upload-form {
-          max-height: 0;
-          padding-top: 0;
-          padding-bottom: 0;
+        &:hover {
+          background: rgba(50, 25, 15, 0.8);
+          border-color: var(--accent-2);
+          transform: translateY(-2px);
         }
       }
     }
 
-    /* 资源列表区（卡片改为冰蓝晶体质感） */
-    .list {
-      margin-top: 18px;
+    .upload-form {
+      padding: 16px 20px 24px;
+      max-height: 1600px;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
 
-      .list-header {
+      .row {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
+        gap: 12px;
+        margin-bottom: 12px;
 
-        h2 {
-          font-size: 16px;
-          margin: 0;
-          color: #ff6b35;
-          font-weight: 800;
+        input {
+          flex: 1;
+          padding: 12px 16px;
+          border-radius: 40px;
+          border: 1px solid rgba(255, 140, 60, 0.2);
+          background: rgba(0, 0, 0, 0.3);
+          color: var(--text-light);
+          font-size: 14px;
+          outline: none;
+          transition: all 0.3s;
+
+          &::placeholder {
+            color: #b99f8b;
+          }
+
+          &:focus {
+            border-color: var(--accent-2);
+            box-shadow: 0 0 0 3px rgba(255, 100, 30, 0.2);
+            background: rgba(20, 10, 5, 0.5);
+          }
         }
 
-        .sort select {
-          padding: 8px;
-          border-radius: 8px;
-          border: 1px solid rgba(110, 200, 255, 0.06);
-          background: linear-gradient(180deg,
-              rgba(6, 30, 40, 0.58),
-              rgba(4, 20, 30, 0.56));
-          color: #f7b096;
+        select {
+          max-width: 140px;
+          padding: 12px 16px;
+          border-radius: 40px;
+          border: 1px solid rgba(255, 140, 60, 0.2);
+          background: rgba(0, 0, 0, 0.3);
+          color: #ffb47b;
+          outline: none;
         }
       }
 
-      .items {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        max-height: 60vh;
+      .actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
 
-        .item {
-          border-radius: 12px;
-          padding: 12px;
+        .btn {
+          padding: 10px 24px;
+          border-radius: 40px;
+          border: none;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.3s;
+
+          &.primary {
+            background: linear-gradient(145deg, #ff974f, #ff4f1e);
+            color: #1a0c06;
+            box-shadow: 0 10px 25px rgba(255, 80, 20, 0.4);
+
+            &:hover:not(:disabled) {
+              transform: translateY(-3px);
+              box-shadow: 0 15px 35px rgba(255, 100, 30, 0.6);
+            }
+          }
+
+          &.secondary {
+            background: transparent;
+            border: 1px solid rgba(255, 140, 60, 0.3);
+            color: #ffb47b;
+
+            &:hover {
+              background: rgba(255, 100, 30, 0.1);
+            }
+          }
+        }
+      }
+    }
+
+    &.collapsed .upload-form {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  /* ========== 资源列表 ========== */
+  .list {
+    margin-top: 24px;
+
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 0 4px;
+
+      h2 {
+        font-size: 1.2rem;
+        margin: 0;
+        color: #ffb47b;
+        font-weight: 700;
+      }
+
+      .sort select {
+        padding: 8px 16px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 140, 60, 0.2);
+        background: rgba(0, 0, 0, 0.3);
+        color: #ffb47b;
+        outline: none;
+        cursor: pointer;
+
+        &:focus {
+          border-color: var(--accent-2);
+        }
+      }
+    }
+
+    .items {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      .item {
+        background: rgba(10, 5, 3, 0.5);
+        backdrop-filter: blur(1px);
+        border-radius: 24px;
+        padding: 18px 22px;
+        margin-bottom: 14px;
+        border: 1px solid rgba(255, 140, 60, 0.15);
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5);
+        transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 2px;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            var(--accent-2),
+            transparent
+          );
+          transition: left 0.6s;
+        }
+
+        &:hover {
+          transform: translateY(-6px);
+          border-color: rgba(255, 140, 60, 0.4);
+          box-shadow: 0 25px 50px -10px rgba(255, 100, 30, 0.2);
+
+          &::before {
+            left: 100%;
+          }
+        }
+
+        .title {
+          display: block;
+          color: #ffd9b0;
+          font-weight: 700;
+          text-decoration: none;
           margin-bottom: 12px;
-          box-shadow: 0 14px 40px rgba(0, 10, 16, 0.5);
-          border: 1px solid rgba(90, 180, 220, 0.04);
-          transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.25, 1),
-            box-shadow 0.18s ease;
+          font-size: 1.1rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          transition: color 0.3s;
 
           &:hover {
-            background: linear-gradient(180deg,
-                rgba(30, 16, 10, 0.70),
-                /* 上端微暖光 */
-                rgba(18, 10, 8, 0.62)
-                /* 底端暗匣 */
-              );
-            transform: translateY(-6px);
-            box-shadow: 0 24px 72px rgba(6, 4, 2, 0.62), 0 0 28px rgba(255, 120, 70, 0.04);
+            color: var(--accent-2);
           }
+        }
 
-          .title {
-            display: block;
-            color: #ffede6;
-            font-weight: 800;
-            text-decoration: none;
-            margin-bottom: 8px;
-            font-size: 15px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
+        .meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.9rem;
 
-          .meta {
+          .left {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 8px;
 
-            font-size: 13px;
-
-            .left {
-              display: flex;
-              align-items: center;
-              gap: 8px;
-
-              .uploader {
-                color: #ff9a66;
-                font-weight: 700;
-              }
-
-              .dot {
-                opacity: 0.6;
-              }
-
-              time {
-                color: #f5e8dc;
-              }
+            .uploader {
+              color: #ffb47b;
+              font-weight: 600;
             }
 
-            .right {
+            .dot {
+              color: #b99f8b;
+            }
+
+            time {
+              color: #b99f8b;
+            }
+          }
+
+          .right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .like-btn {
               display: flex;
               align-items: center;
-              gap: 8px;
+              gap: 6px;
+              background: rgba(30, 15, 8, 0.6);
+              border: 1px solid rgba(255, 140, 60, 0.2);
+              border-radius: 30px;
+              padding: 4px 12px;
+              cursor: pointer;
+              transition: all 0.3s;
 
-              .like-btn {
-                background: transparent;
-                border: none;
-                cursor: pointer;
-                padding: 6px 8px;
-                border-radius: 8px;
-                font-weight: 700;
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                transition: transform 0.08s, background 0.12s;
-                color: rgba(255, 221, 190, 0.95);
-              }
-
-              .like-btn:hover {
+              &:hover {
+                background: rgba(50, 25, 15, 0.8);
+                border-color: var(--accent-2);
                 transform: translateY(-2px);
               }
 
               .heart-icon {
                 width: 18px;
                 height: 18px;
-                display: block;
-                filter: grayscale(100%) opacity(0.9);
+                filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.5));
               }
 
-
-              .like-btn.active .heart-icon {
-                filter: none;
-                transform: scale(1.03);
-                box-shadow: 0 6px 20px rgba(240, 163, 80, 0.12);
+              .count {
+                color: #ffb47b;
+                font-weight: 600;
               }
 
-              .badge {
-                padding: 4px 8px;
-                border-radius: 999px;
-                font-size: 12px;
-                font-weight: 700;
-                background: linear-gradient(180deg,
-                    rgba(240, 173, 80, 0.12),
-                    rgba(160, 106, 30, 0.06));
-                color: #ff9a66;
-                border: 1px solid rgba(80, 200, 240, 0.06);
+              &.active .heart-icon {
+                filter: drop-shadow(0 0 8px #ff4f1e);
               }
+            }
+
+            .badge {
+              padding: 4px 12px;
+              border-radius: 30px;
+              font-size: 0.8rem;
+              font-weight: 600;
+              background: rgba(255, 100, 30, 0.15);
+              border: 1px solid rgba(255, 140, 60, 0.3);
+              color: #ffb47b;
             }
           }
         }
       }
+    }
 
-      .empty {
-        text-align: center;
-        color: #ff6b35;
-        padding: 28px 0;
-      }
+    .empty {
+      text-align: center;
+      color: #b99f8b;
+      padding: 40px 0;
+      font-style: italic;
     }
   }
 
+  /* 底部提示 */
   .foot {
+    position: relative;
+    z-index: 10;
     text-align: center;
-    color: rgba(170, 210, 225, 0.86);
-    font-size: 12px;
-    margin: 20px 0 40px;
+    color: #b99f8b;
+    font-size: 0.85rem;
+    margin: 30px 0 40px;
   }
 
-  /* 响应式：移动端优化（守岸人收敛） */
-  @media (max-width: 640px) {
-    padding-top: 80px;
+  /* ========== 动画 ========== */
+  @keyframes feather-float {
+    0% {
+      transform: rotate(8deg) scale(1);
+      opacity: 0.2;
+    }
+    100% {
+      transform: rotate(25deg) scale(1.3);
+      opacity: 0.4;
+    }
+  }
 
+  /* ========== 响应式 ========== */
+  @media (max-width: 1024px) {
     .carousel1 {
       display: none;
     }
-
     .carousel2 {
       display: block;
     }
+  }
+
+  @media (max-width: 768px) {
+    padding-top: 80px;
 
     .hero {
       padding: 12px 10px;
-
-      .hero-inner h1 {
-        font-size: 18px;
-      }
-
-      .subtitle {
-        font-size: 12px;
-        color: rgba(190, 245, 255, 0.9);
-      }
     }
 
-    .container {
-      padding: 0 14px;
+    .upload-form .row {
+      flex-direction: column;
     }
 
-    .upload-form {
-      .row {
-        flex-direction: column;
-      }
-
-      .actions {
-        flex-direction: column;
-        align-items: stretch;
-      }
+    .actions {
+      flex-direction: column;
+      align-items: stretch;
     }
 
     .items .item .title {
       white-space: normal;
-      /* 移动端允许标题换行以提高可读性 */
     }
   }
 }

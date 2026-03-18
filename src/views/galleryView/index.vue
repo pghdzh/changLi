@@ -1,74 +1,107 @@
 <template>
   <div class="gallery-container">
-    <button class="upload-btn" @click="openUploadModal">上传图片</button>
+    <!-- 装饰性背景元素（新增） -->
+    <div class="bg-ornament"></div>
+    <div class="bg-grid"></div>
+   
 
-    <section class="gallery section">
-      <div class="sort-controls">
-        <button @click="toggleSort" class="sort-btn">
-          按 {{ sortBy === "like_count" ? "点赞量" : "最新上传" }} 排序
-        </button>
-      </div>
-      <div class="gallery-grid">
-        <div
-          v-for="(img, index) in images"
-          :key="img.id"
-          class="card"
-          @click="openLightbox(index)"
-          ref="cards"
-        >
-          <div class="card-inner">
-            <img
-              :src="img.src"
-              :alt="img.alt"
-              loading="lazy"
-              @load="onImageLoad($event)"
-            />
-            <div class="overlay">
-              <span>查看大图</span>
-            </div>
-            <button class="like-btn" @click.stop="handleLike(img)">
-              <i class="heart" :class="{ liked: img.liked }"></i>
-              <span class="like-count">{{ img.likeCount }}</span>
+    <!-- 上传按钮（样式优化） -->
+    <button class="upload-btn" @click="openUploadModal">
+      <span class="btn-icon">+</span>
+      <span class="btn-text">上传图片</span>
+    </button>
+
+    <!-- 主内容区域：使用flex布局，左侧画廊右侧排行榜（桌面） -->
+    <div class="gallery-layout">
+      <section class="gallery section">
+        <div class="section-header">
+          <h2 class="section-title">焚愿画廊</h2>
+          <div class="sort-controls">
+            <button @click="toggleSort" class="sort-btn">
+              <span class="sort-icon"></span>
+              <span class="sort-text"
+                >按
+                {{ sortBy === "like_count" ? "点赞量" : "最新上传" }} 排序</span
+              >
             </button>
           </div>
         </div>
-      </div>
-      <!-- sentinel：用于触发无限滚动 -->
-      <div ref="sentinel" class="sentinel"></div>
-      <!-- 可选：加载中/结束提示 -->
-      <div class="loading" v-if="loading">加载中...</div>
-      <div class="finished" v-if="finished">已全部加载</div>
-    </section>
-    <aside class="ranking-panel">
-      <div class="panel-header" @click="expanded = !expanded">
-        <h3 class="ranking-title">排行榜</h3>
-        <span>共{{ imgTotal }}张</span>
-        <span class="toggle-icon">{{ expanded ? "▾" : "▸" }}</span>
-      </div>
-      <transition name="fade">
-        <ul v-if="expanded" class="ranking-list">
-          <li
-            v-for="(item, idx) in rankingList"
-            :key="idx"
-            class="ranking-item"
-            :class="`rank-${idx + 1}`"
+
+        <div class="gallery-grid">
+          <div
+            v-for="(img, index) in images"
+            :key="img.id"
+            class="card"
+            @click="openLightbox(index)"
+            ref="cards"
           >
-            <span class="rank">{{ idx + 1 }}</span>
-            <span class="name">{{ item.nickname }}</span>
-            <span class="count">{{ item.count }} 张</span>
-          </li>
-        </ul>
-      </transition>
-    </aside>
-    <!-- Lightbox Modal -->
-    <div v-if="lightboxOpen" class="lightbox" @click.self="closeLightbox">
-      <span class="close" @click="closeLightbox">✕</span>
-      <span class="prev" @click.stop="prevImage">‹</span>
-      <img :src="images[currentIndex].src" :alt="images[currentIndex].alt" />
-      <span class="next" @click.stop="nextImage">›</span>
+            <div class="card-inner">
+              <img
+                :src="img.src"
+                :alt="img.alt"
+                loading="lazy"
+                @load="onImageLoad($event)"
+              />
+              <div class="overlay">
+                <span>查看大图</span>
+              </div>
+              <button class="like-btn" @click.stop="handleLike(img)">
+                <i class="heart" :class="{ liked: img.liked }"></i>
+                <span class="like-count">{{ img.likeCount }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- sentinel：用于触发无限滚动 -->
+        <div ref="sentinel" class="sentinel"></div>
+
+        <!-- 加载状态 -->
+        <div class="loading-indicator" v-if="loading">
+          <span class="spinner"></span>
+          <span>加载中...</span>
+        </div>
+        <div class="finished-message" v-if="finished">—— 已全部加载 ——</div>
+      </section>
+
+      <!-- 排行榜侧边栏（桌面固定，移动端作为底部抽屉） -->
+      <aside class="ranking-panel" :class="{ expanded }">
+        <div class="panel-header" @click="expanded = !expanded">
+          <div class="header-left">
+            <h3 class="ranking-title">排行榜</h3>
+            <span class="total-badge">共{{ imgTotal }}张</span>
+          </div>
+          <button class="toggle-btn" :aria-label="expanded ? '收起' : '展开'">
+            <span class="toggle-icon">{{ expanded ? "▾" : "▸" }}</span>
+          </button>
+        </div>
+
+        <transition name="fade">
+          <ul v-if="expanded" class="ranking-list">
+            <li
+              v-for="(item, idx) in rankingList"
+              :key="idx"
+              class="ranking-item"
+              :class="`rank-${idx + 1}`"
+            >
+              <span class="rank">{{ idx + 1 }}</span>
+              <span class="name">{{ item.nickname }}</span>
+              <span class="count">{{ item.count }} 张</span>
+            </li>
+          </ul>
+        </transition>
+      </aside>
     </div>
 
-    <!-- 上传弹窗 -->
+    <!-- Lightbox Modal（保持原样，稍作样式调整） -->
+    <div v-if="lightboxOpen" class="lightbox" @click.self="closeLightbox">
+      <button class="close" @click="closeLightbox">✕</button>
+      <button class="prev" @click.stop="prevImage">‹</button>
+      <img :src="images[currentIndex].src" :alt="images[currentIndex].alt" />
+      <button class="next" @click.stop="nextImage">›</button>
+    </div>
+
+    <!-- 上传弹窗（保持原样，稍作样式调整） -->
     <div
       v-if="uploadModalOpen"
       class="upload-modal-overlay"
@@ -123,6 +156,7 @@
       </div>
     </div>
 
+    <!-- 浮动小人（保持原逻辑，位置样式微调） -->
     <div class="floating-chibis">
       <img
         v-for="(pet, i) in chibiList"
@@ -587,800 +621,418 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
-$bg: #0d0d0d;
-$accent: #d14b4b;
-$text: #fde8e8;
-$highlight: #ffd700;
-$ice-blue: #bff7ff;
-$neon-pink: #ff66c4;
-@use "sass:color";
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.floating-chibis {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.chibi-img {
-  position: absolute;
-  width: 80px;
-  user-select: none;
-  transform-origin: center center;
-  pointer-events: auto;
-  position: absolute;
-  z-index: 10;
+// 主题变量（统一为长离风格）
+:root {
+  --bg-deep: #0a0503;
+  --accent: #ff4f1e;
+  --accent-2: #ff974f;
+  --accent-3: #ffcb9a;
+  --text-light: #f7e4d4;
+  --glass-bg: rgba(10, 5, 3, 0.7);
+  --flame-glow: rgba(255, 80, 20, 0.3);
+  --card-bg: rgba(15, 8, 4, 0.6);
+  --border-glow: rgba(255, 140, 60, 0.2);
 }
 
 .gallery-container {
-  background: radial-gradient(circle at center, #111 0%, $bg 100%);
-  color: $text;
+  position: relative;
   min-height: 100vh;
-  padding-bottom: 60px;
+  background: linear-gradient(135deg, #1a0c06 0%, #0a0503 50%, #1f0e07 100%);
+  color: var(--text-light);
+  font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
 
-  .section {
-    padding: 80px 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-
-    .sort-controls {
-      margin: 16px 0;
-
-      .sort-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 28px 10px 56px;
-        font-size: 1rem;
-        line-height: 1;
-        font-family: "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial,
-          sans-serif;
-        cursor: pointer;
-        border-radius: 28px;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid rgba(255, 120, 70, 0.06);
-
-        /* 暗匣底 + 轻微暖光纹理（写死颜色） */
-        background: linear-gradient(
-          90deg,
-          rgba(18, 10, 8, 0.82) 0%,
-          rgba(12, 8, 6, 0.92) 50%,
-          rgba(10, 6, 4, 0.96) 100%
-        );
-        color: #ffb890;
-        /* 暖金文本 */
-        box-shadow: 0 10px 28px rgba(8, 4, 2, 0.56),
-          /* 深色投影 */ inset 0 1px 0 rgba(255, 160, 110, 0.02);
-        /* 内部微光 */
-
-        transition: transform 200ms cubic-bezier(0.2, 0.9, 0.25, 1),
-          box-shadow 200ms ease, background 260ms ease, color 160ms ease,
-          filter 200ms ease;
-        -webkit-tap-highlight-color: transparent;
-        will-change: transform, box-shadow, filter;
-
-        /* 左侧徽记 —— 焰羽棋徽（改为暖色）*/
-        &::after {
-          content: "";
-          position: absolute;
-          left: 18px;
-          top: 50%;
-          transform: translateY(-50%) rotate(-12deg);
-          width: 18px;
-          height: 22px;
-          border-radius: 4px;
-          /* 由暖金到铜金的微渐变，形似小徽记/棋纹 */
-          background: linear-gradient(
-            180deg,
-            rgba(255, 217, 184, 0.98),
-            rgba(255, 154, 102, 0.94)
-          );
-          box-shadow: 0 6px 18px rgba(255, 120, 70, 0.12),
-            inset 0 1px 0 rgba(255, 255, 255, 0.5);
-          /* 稍微修改裁切形状，像火羽 / 纹章 */
-          clip-path: polygon(
-            50% 0,
-            78% 25%,
-            100% 45%,
-            50% 100%,
-            0% 45%,
-            22% 25%
-          );
-          pointer-events: none;
-          z-index: 3;
-          transition: transform 220ms ease, opacity 220ms ease,
-            box-shadow 220ms ease;
-        }
-
-        /* 轻微的内侧余焰环（可见但不抢眼） */
-        &::before {
-          content: "";
-          position: absolute;
-          left: 6px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          background: radial-gradient(
-            circle at 35% 35%,
-            rgba(255, 180, 120, 0.06),
-            transparent 45%
-          );
-          filter: blur(6px);
-          pointer-events: none;
-          opacity: 0.9;
-          z-index: 1;
-        }
-
-        /* hover：暗底微变，余焰徽记放大且发亮 */
-        &:hover {
-          transform: translateY(-5px) scale(1.02);
-          box-shadow: 0 22px 66px rgba(8, 4, 2, 0.66),
-            0 0 44px rgba(255, 120, 70, 0.1);
-          filter: saturate(1.06) brightness(1.02);
-          color: #ff8a4a;
-          background: linear-gradient(
-            90deg,
-            rgba(18, 10, 8, 0.88) 0%,
-            rgba(12, 8, 6, 0.94) 50%,
-            rgba(10, 6, 4, 0.98) 100%
-          );
-        }
-
-        &:hover::after {
-          transform: translateY(-56%) rotate(-6deg) scale(1.12);
-          box-shadow: 0 10px 30px rgba(255, 140, 80, 0.18),
-            inset 0 2px 6px rgba(255, 255, 255, 0.2);
-          opacity: 1;
-        }
-
-        /* active（按下）反馈 */
-        &:active {
-          transform: translateY(-2px) scale(0.995);
-          box-shadow: 0 10px 28px rgba(8, 4, 2, 0.5),
-            0 0 20px rgba(255, 120, 70, 0.06);
-        }
-
-        /* keyboard focus 可见环（无障碍） */
-        &:focus-visible {
-          outline: none;
-          box-shadow: 0 22px 66px rgba(8, 4, 2, 0.66),
-            0 0 0 6px rgba(255, 140, 80, 0.06);
-        }
-      }
-    }
-
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 24px;
-
-      .card {
-        perspective: 1000px;
-        opacity: 0;
-        transform: translateY(20px);
-
-        &.visible {
-          animation: fadeInUp 0.6s ease forwards;
-        }
-
-        &.loaded {
-          // Blur-up & grayscale removed
-          .card-inner img {
-            filter: none;
-            opacity: 1;
-          }
-        }
-
-        .card-inner {
-          position: relative;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
-          transform-style: preserve-3d;
-          transition: transform 0.5s ease, box-shadow 0.5s ease;
-
-          &:hover {
-            transform: rotateY(6deg) rotateX(3deg) scale(1.05);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.9);
-          }
-
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            filter: blur(20px) grayscale(100%);
-            opacity: 0.6;
-            transition: filter 0.6s ease, opacity 0.6s ease;
-          }
-
-          .overlay {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            padding: 12px 0;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.4s;
-
-            span {
-              color: $text;
-              font-family: "Cinzel Decorative", serif;
-              font-size: 1.1rem;
-              letter-spacing: 1px;
-              background: rgba(0, 0, 0, 0.6);
-              padding: 4px 12px;
-              border-radius: 20px;
-            }
-          }
-
-          &:hover .overlay {
-            opacity: 1;
-          }
-
-          .like-btn {
-            position: absolute;
-            bottom: 12px;
-            right: 12px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px;
-            border-radius: 50%;
-            transition: transform 0.2s ease;
-
-            &:hover {
-              transform: scale(1.3);
-            }
-
-            .heart {
-              width: 24px;
-              height: 24px;
-              background: url("/icons/heart-red-outline.svg") no-repeat center;
-              background-size: contain;
-              transition: all 0.3s ease;
-              filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.7));
-            }
-
-            .liked {
-              background: url("/icons/heart-red-filled.svg") no-repeat center;
-              background-size: contain;
-              animation: pop 0.4s ease;
-
-              /* 持续呼吸光效 */
-              &::after {
-                content: "";
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 40px;
-                height: 40px;
-                background: rgba(255, 0, 0, 0.3);
-                border-radius: 50%;
-                transform: translate(-50%, -50%) scale(0);
-                animation: pulse 1.2s ease-out infinite;
-                pointer-events: none;
-              }
-            }
-
-            .like-count {
-              font-size: 1rem;
-              color: #ff4b4b;
-              text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
-              font-weight: bold;
-            }
-          }
-
-          @keyframes pulse {
-            0% {
-              transform: translate(-50%, -50%) scale(0.6);
-              opacity: 0.6;
-            }
-
-            50% {
-              transform: translate(-50%, -50%) scale(1.2);
-              opacity: 0;
-            }
-
-            100% {
-              transform: translate(-50%, -50%) scale(0.6);
-              opacity: 0;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .lightbox {
+  // 装饰性背景元素
+  .bg-ornament {
     position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.95);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-
-    img {
-      max-width: 85%;
-      max-height: 85%;
-      border: 3px solid $accent;
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9);
-      animation: fadeInUp 0.4s ease;
-    }
-
-    .close,
-    .prev,
-    .next {
-      position: absolute;
-      color: $text;
-      font-size: 2.5rem;
-      cursor: pointer;
-      user-select: none;
-      padding: 8px;
-      background: rgba(27, 27, 27, 0.8);
-      border-radius: 50%;
-      transition: background 0.3s;
-
-      &:hover {
-        background: $accent;
-      }
-    }
-
-    .close {
-      top: 20px;
-      right: 20px;
-    }
-
-    .prev {
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .next {
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 140, 60, 0.05) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 70% 70%,
+        rgba(255, 80, 30, 0.05) 0%,
+        transparent 50%
+      );
+    pointer-events: none;
+    z-index: 0;
   }
 
+  .bg-grid {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(
+        rgba(255, 80, 30, 0.02) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(255, 80, 30, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+
+
+  // 上传按钮（优化）
   .upload-btn {
     position: fixed;
-    bottom: 64px;
-    left: 24px;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 18px;
-    font-size: 1rem;
-    font-family: "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial,
-      sans-serif;
-    z-index: 10;
-    cursor: pointer;
-    user-select: none;
-
-    color: #022b33;
-    background: linear-gradient(
-      90deg,
-      rgba(255, 217, 184, 0.98) 0%,
-      rgba(255, 154, 102, 0.98) 52%,
-      rgba(255, 107, 53, 1) 100%
-    );
-    border-radius: 28px;
-
-    backdrop-filter: blur(6px) saturate(120%);
-    -webkit-backdrop-filter: blur(6px) saturate(120%);
-
-    /* 卡片质感：深色阴影 + 冰蓝光晕 */
-    box-shadow: 0 14px 40px rgba(2, 20, 28, 0.55),
-      /* 深海投影 */ 0 0 28px rgba(80, 200, 240, 0.08);
-    /* 冰蓝光晕 */
-
-    overflow: visible;
-    transition: transform 220ms cubic-bezier(0.2, 0.9, 0.25, 1),
-      box-shadow 220ms ease, background 260ms ease, filter 220ms ease;
-
-    /* hover：微抬起、光晕增强 */
-    &:hover {
-      transform: translateY(-6px) scale(1.02);
-      box-shadow: 0 28px 80px rgba(2, 24, 34, 0.62),
-        0 0 46px rgba(80, 200, 240, 0.16);
-      filter: brightness(1.02) saturate(1.05);
-    }
-  }
-
-  .upload-modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
+    bottom: 32px;
+    left: 32px;
+    z-index: 100;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(145deg, #ff974f, #ff4f1e);
+    border: none;
+    border-radius: 40px;
+    color: #1a0c06;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 15px 30px rgba(255, 80, 20, 0.4),
+      0 0 0 1px rgba(255, 140, 60, 0.3);
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
 
-    /* 暗匣遮罩 + 微暖余焰渐变（写死颜色）*/
-    background: linear-gradient(
-      180deg,
-      rgba(8, 5, 3, 0.86),
-      rgba(6, 4, 3, 0.78)
-    );
+    .btn-icon {
+      font-size: 1.4rem;
+      line-height: 1;
+    }
 
-    /* 轻微模糊以保留底下内容感知 */
-    backdrop-filter: blur(10px) saturate(1.05);
-    -webkit-backdrop-filter: blur(10px) saturate(1.05);
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 25px 40px rgba(255, 100, 30, 0.5),
+        0 0 0 1px rgba(255, 140, 60, 0.5);
+    }
 
-    /* 顶层微弱余焰光斑（不抢眼）*/
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: radial-gradient(
-          700px 260px at 50% 28%,
-          rgba(255, 140, 80, 0.05),
-          transparent 14%
-        ),
-        linear-gradient(180deg, rgba(0, 0, 0, 0.22), transparent 40%);
-      mix-blend-mode: screen;
+    &:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      bottom: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 0.9rem;
     }
   }
 
-  /* 模态主体：暗匣 + 内侧余光 */
-  .upload-modal {
+  // 主布局：flex 左右结构
+  .gallery-layout {
     position: relative;
-    width: 720px;
-    max-width: calc(100% - 40px);
-    padding: 36px;
-    border-radius: 16px;
-    overflow: hidden;
-    z-index: 2100;
-    color: #f5e8dc;
-    /* 暖米文字 */
-    font-family: "Helvetica Neue", "Noto Sans SC", "PingFang SC", sans-serif;
-    -webkit-font-smoothing: antialiased;
+    z-index: 10;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 100px 24px 40px;
+    display: flex;
+    gap: 32px;
 
-    /* 背景：更偏暖的暗匣质感 */
-    background: linear-gradient(
-      180deg,
-      rgba(18, 10, 8, 0.94),
-      rgba(12, 8, 6, 0.92)
-    );
-    border: 1px solid rgba(255, 120, 70, 0.06);
-    backdrop-filter: blur(6px) saturate(1.02);
-    -webkit-backdrop-filter: blur(6px) saturate(1.02);
-    box-shadow: 0 30px 90px rgba(6, 4, 2, 0.78),
-      inset 0 1px 0 rgba(255, 160, 110, 0.02);
-
-    /* 暖光边缘（伪元素） */
-    &::before {
-      content: "";
-      position: absolute;
-      inset: -2px;
-      border-radius: 18px;
-      pointer-events: none;
-      background: linear-gradient(
-        90deg,
-        rgba(255, 160, 110, 0.06),
-        rgba(255, 120, 70, 0.04),
-        rgba(255, 160, 110, 0.04)
-      );
-      filter: blur(14px);
-      mix-blend-mode: screen;
-      opacity: 0.95;
+    @media (max-width: 1024px) {
+      flex-direction: column;
+      padding-top: 80px;
     }
 
-    h3 {
-      margin: 0 0 16px 0;
-      font-size: 1.5rem;
-      color: #ffb890;
-      /* 暖金标题 */
-      font-weight: 900;
-      text-align: center;
-      letter-spacing: 0.6px;
-      text-shadow: 0 6px 22px rgba(40, 16, 12, 0.28);
+    @media (max-width: 768px) {
+      padding: 70px 16px 30px;
     }
+  }
 
-    .stats {
-      margin: 18px 0;
-      font-size: 1rem;
-      text-align: center;
-      color: rgba(245, 232, 220, 0.94);
+  // 画廊主区域
+  .gallery {
+    flex: 1;
+    min-width: 0; // 防止溢出
 
-      strong {
-        color: #ff9a66;
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
       }
     }
 
-    /* tip 区块：匣中深色 + 左侧余焰强调线 */
-    .tip-container {
-      margin-top: 18px;
-      padding: 14px 18px;
-      background: linear-gradient(
-        180deg,
-        rgba(14, 8, 6, 0.6),
-        rgba(10, 6, 4, 0.56)
-      );
-      border-left: 4px solid rgba(255, 140, 90, 0.12);
-      border-radius: 10px;
-      backdrop-filter: blur(4px);
-      color: rgba(245, 232, 220, 0.94);
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffdbb0, #ffb47b, #ff6324);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin: 0;
+      letter-spacing: 2px;
 
-      .tips-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
+      @media (max-width: 768px) {
+        font-size: 1.6rem;
+      }
+    }
 
-        li {
-          position: relative;
-          padding-left: 34px;
-          margin-bottom: 10px;
-          font-size: 0.95rem;
-          color: rgba(240, 225, 210, 0.94);
+    .sort-controls {
+      .sort-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 24px;
+        background: rgba(10, 5, 3, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 140, 60, 0.2);
+        border-radius: 40px;
+        color: #ffb890;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s;
 
-          &::before {
-            content: "";
-            position: absolute;
-            left: 8px;
-            top: 8px;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            /* 由冰蓝改为余焰小徽记（暖色） */
-            background: radial-gradient(
-              circle at 30% 30%,
-              #ffd9b8 0%,
-              rgba(255, 160, 110, 0.88) 20%,
-              #ff9a66 60%,
-              #ff6b35 100%
-            );
-            box-shadow: 0 6px 18px rgba(255, 120, 70, 0.06);
+        .sort-icon {
+          width: 20px;
+          height: 20px;
+          background: radial-gradient(circle, #ff974f, #ff4f1e);
+          border-radius: 50%;
+          filter: blur(4px);
+        }
+
+        &:hover {
+          background: rgba(20, 10, 5, 0.8);
+          border-color: rgba(255, 140, 60, 0.4);
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+
+  // 画廊网格
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+
+    @media (max-width: 768px) {
+      gap: 16px;
+    }
+
+    .card {
+      perspective: 1200px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+
+      &.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .card-inner {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        background: var(--card-bg);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 140, 60, 0.15);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+        transition: all 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+
+        &:hover {
+          transform: translateY(-6px) rotateX(2deg);
+          box-shadow: 0 30px 60px -10px rgba(255, 100, 30, 0.3);
+          border-color: rgba(255, 140, 60, 0.4);
+
+          .overlay {
+            opacity: 1;
+          }
+        }
+
+        img {
+          width: 100%;
+          height: 260px;
+          object-fit: cover;
+          display: block;
+          filter: blur(0) grayscale(0);
+          transition: transform 0.5s;
+        }
+
+        .overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          padding: 16px 0;
+          background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+          text-align: center;
+          opacity: 0;
+          transition: opacity 0.3s;
+
+          span {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(255, 100, 30, 0.2);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 140, 60, 0.3);
+            border-radius: 30px;
+            color: #ffd9b0;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+          }
+        }
+
+        .like-btn {
+          position: absolute;
+          bottom: 16px;
+          right: 16px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(10, 5, 3, 0.6);
+          backdrop-filter: blur(4px);
+          border: 1px solid rgba(255, 140, 60, 0.3);
+          border-radius: 30px;
+          padding: 6px 12px;
+          cursor: pointer;
+          transition: all 0.3s;
+
+          &:hover {
+            background: rgba(20, 10, 5, 0.8);
+            transform: scale(1.05);
           }
 
-          &:last-child {
-            margin-bottom: 0;
+          .heart {
+            width: 20px;
+            height: 20px;
+            background: url("/icons/heart-red-outline.svg") no-repeat center;
+            background-size: contain;
+            filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.5));
+
+            &.liked {
+              background: url("/icons/heart-red-filled.svg") no-repeat center;
+              animation: pop 0.3s ease;
+            }
+          }
+
+          .like-count {
+            color: #ffb47b;
+            font-weight: 700;
+            font-size: 0.9rem;
           }
         }
       }
     }
+  }
 
-    .tip {
-      margin-top: 10px;
-      text-align: right;
-      font-size: 0.9rem;
-      color: rgba(230, 210, 190, 0.86);
-    }
+  // 加载指示器
+  .loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+    color: #ffb47b;
 
-    /* 表单控件：深色输入框 + 余焰高光（聚焦时暖光） */
-    label {
-      display: block;
-      margin-bottom: 18px;
-      font-size: 0.95rem;
-      color: rgba(240, 225, 210, 0.96);
-
-      input[type="text"],
-      input[type="file"],
-      textarea {
-        width: 100%;
-        margin-top: 8px;
-        padding: 12px 14px;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 120, 70, 0.06);
-        background: linear-gradient(
-          180deg,
-          rgba(12, 8, 6, 0.6),
-          rgba(10, 6, 4, 0.64)
-        );
-        color: rgba(245, 232, 220, 0.96);
-        font-size: 0.95rem;
-        outline: none;
-        transition: border-color 0.18s ease, box-shadow 0.18s ease,
-          transform 0.12s ease;
-        box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.44);
-      }
-
-      input[type="text"]::placeholder,
-      textarea::placeholder {
-        color: rgba(230, 210, 190, 0.56);
-      }
-
-      input[type="text"]:focus,
-      input[type="file"]:focus,
-      textarea:focus {
-        border-color: rgba(255, 140, 90, 0.36);
-        box-shadow: 0 12px 36px rgba(255, 120, 70, 0.06),
-          0 2px 8px rgba(255, 160, 110, 0.04);
-        transform: translateY(-1px);
-      }
-    }
-
-    /* 按钮行：主按钮为余焰渐变，取消为透明暖边 */
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 14px;
-      margin-top: 28px;
-      flex-wrap: wrap;
-      align-items: center;
-
-      button {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 24px;
-        cursor: pointer;
-        font-weight: 800;
-        font-size: 0.95rem;
-        transition: background 0.22s ease, box-shadow 0.22s ease,
-          transform 0.12s ease;
-        min-width: 96px;
-        color: #2b1208;
-      }
-
-      /* 主按钮：余焰渐变 */
-      button:not(.cancel) {
-        background: linear-gradient(
-          135deg,
-          #ffd9b8 0%,
-          #ffb890 45%,
-          #ff8a4a 100%
-        );
-        box-shadow: 0 12px 36px rgba(255, 120, 70, 0.12),
-          0 4px 18px rgba(160, 90, 40, 0.04);
-        color: #2b1208;
-      }
-
-      button:not(.cancel):hover:not(:disabled) {
-        transform: translateY(-4px);
-        box-shadow: 0 22px 66px rgba(8, 4, 2, 0.32),
-          0 8px 28px rgba(255, 120, 70, 0.08);
-      }
-
-      button:not(.cancel):disabled {
-        background: linear-gradient(
-          135deg,
-          rgba(60, 40, 36, 0.48),
-          rgba(50, 40, 36, 0.44)
-        );
-        opacity: 0.6;
-        cursor: not-allowed;
-        box-shadow: none;
-        color: rgba(200, 180, 160, 0.6);
-      }
-
-      /* 取消按钮：半透明暖边风格 */
-      button.cancel {
-        background: transparent;
-        border: 2px solid rgba(255, 120, 70, 0.06);
-        color: rgba(240, 220, 200, 0.9);
-        min-width: 86px;
-        box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.22);
-      }
-
-      button.cancel:hover {
-        background: rgba(255, 140, 90, 0.03);
-      }
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255, 140, 60, 0.3);
+      border-top-color: #ff974f;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
   }
 
+  .finished-message {
+    text-align: center;
+    padding: 20px;
+    color: #b99f8b;
+    font-style: italic;
+  }
+
+  // 排行榜侧边栏
   .ranking-panel {
-    width: 220px;
-    padding: 16px;
-    position: fixed;
-    top: 84px;
-    right: 12px;
-    z-index: 1200;
-    color: #f5e8dc;
-    font-family: "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial,
-      sans-serif;
+    width: 280px;
+    flex-shrink: 0;
+    background: rgba(10, 5, 3, 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 140, 60, 0.2);
+    border-radius: 28px;
+    padding: 20px;
+    height: fit-content;
+    transition: all 0.3s;
 
-    /* 暗匣底与微暖内光（写死颜色） */
-    background: linear-gradient(
-      180deg,
-      rgba(12, 8, 6, 0.94),
-      rgba(10, 6, 4, 0.92)
-    );
-    border-radius: 18px;
-    border: 1px solid rgba(255, 120, 70, 0.06);
-    -webkit-backdrop-filter: blur(8px) saturate(1.02);
-    backdrop-filter: blur(8px) saturate(1.02);
-    box-shadow: 0 18px 56px rgba(6, 4, 2, 0.84),
-      inset 0 1px 0 rgba(255, 160, 110, 0.02);
-
-    &.collapsed {
-      height: auto;
-      padding-bottom: 8px;
+    @media (max-width: 1024px) {
+      width: 100%;
+      margin-top: 20px;
     }
 
     .panel-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
       cursor: pointer;
-      user-select: none;
-      padding-bottom: 6px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 140, 60, 0.2);
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
 
       .ranking-title {
-        margin: 0;
-        font-size: 1.05rem;
-        font-weight: 900;
+        font-size: 1.2rem;
+        font-weight: 700;
         color: #ffb890;
-        /* 暖金 */
-        font-family: "Zhi Mang Xing", "STKaiti", serif;
-        letter-spacing: 0.6px;
-        text-shadow: 0 6px 18px rgba(40, 16, 12, 0.28);
+        margin: 0;
       }
 
-      .toggle-icon {
-        font-size: 1rem;
-        color: #ffb57a;
-        background: linear-gradient(
-          180deg,
-          rgba(30, 18, 12, 0.48),
-          rgba(24, 14, 10, 0.36)
-        );
-        padding: 6px 8px;
-        border-radius: 9px;
-        border: 1px solid rgba(255, 120, 70, 0.06);
-        box-shadow: 0 6px 14px rgba(6, 4, 4, 0.5),
-          inset 0 1px 0 rgba(255, 160, 110, 0.02);
-        transition: transform 220ms, box-shadow 220ms;
+      .total-badge {
+        font-size: 0.8rem;
+        color: #b99f8b;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 2px 8px;
+        border-radius: 20px;
       }
 
-      /* header hover / focus 更明显的余焰微光 */
-      &:hover .toggle-icon,
-      &:focus-within .toggle-icon {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(255, 120, 70, 0.08),
-          inset 0 1px 0 rgba(255, 160, 110, 0.02);
+      .toggle-btn {
+        background: rgba(30, 15, 8, 0.5);
+        border: 1px solid rgba(255, 140, 60, 0.2);
+        border-radius: 30px;
+        padding: 4px 12px;
+        color: #ffb47b;
+        cursor: pointer;
+        transition: all 0.3s;
+
+        &:hover {
+          background: rgba(50, 25, 15, 0.7);
+          border-color: rgba(255, 140, 60, 0.4);
+        }
       }
     }
 
-    /* 列表容器 */
     .ranking-list {
       list-style: none;
       padding: 0;
-      margin: 12px 0 0;
+      margin: 16px 0 0;
+      max-height: 400px;
       overflow-y: auto;
-      max-height: 55vh;
 
       &::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
       }
-
-      &::-webkit-scrollbar-thumb {
-        background: linear-gradient(
-          180deg,
-          rgba(255, 140, 80, 0.14),
-          rgba(255, 100, 40, 0.1)
-        );
-        border-radius: 8px;
-        border: 1px solid rgba(255, 160, 110, 0.02);
-      }
-
       &::-webkit-scrollbar-track {
-        background: transparent;
+        background: rgba(255, 140, 60, 0.1);
+        border-radius: 10px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #ff974f, #ff4f1e);
+        border-radius: 10px;
       }
     }
 
@@ -1388,160 +1040,343 @@ $neon-pink: #ff66c4;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 10px;
+      padding: 12px 16px;
       margin-bottom: 8px;
-      border-radius: 12px;
-      cursor: default;
-
-      /* 暗匣小卡片，微暖边线 */
-      background: linear-gradient(
-        180deg,
-        rgba(14, 10, 8, 0.56),
-        rgba(12, 8, 6, 0.54)
-      );
-
-      transition: transform 260ms cubic-bezier(0.2, 0.9, 0.3, 1),
-        box-shadow 260ms, background 260ms, color 200ms;
-      position: relative;
+      border-radius: 40px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid transparent;
+      transition: all 0.3s;
 
       &:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 18px 48px rgba(8, 4, 2, 0.72),
-          0 0 28px rgba(255, 120, 70, 0.04);
-        background: linear-gradient(
-          90deg,
-          rgba(18, 10, 8, 0.66),
-          rgba(14, 8, 6, 0.62)
-        );
-      }
-
-      /* 可键盘 focus 的高亮态（便于可访问性） */
-      &:focus-within,
-      &:focus {
-        outline: none;
-        box-shadow: 0 18px 48px rgba(255, 120, 70, 0.06),
-          0 0 0 4px rgba(255, 120, 70, 0.04);
-        transform: translateY(-4px);
+        background: rgba(30, 15, 8, 0.5);
+        border-color: rgba(255, 140, 60, 0.2);
+        transform: translateX(-4px);
       }
 
       .rank {
-        width: 36px;
-        text-align: center;
-        font-weight: 900;
-        font-size: 1rem;
-        color: #ffd9b8;
-        /* 余焰色 */
-        text-shadow: 0 2px 8px rgba(40, 16, 12, 0.24);
-        flex-shrink: 0;
+        width: 30px;
+        font-weight: 800;
+        color: #ffb47b;
       }
 
       .name {
         flex: 1;
-        padding: 0 8px;
         font-size: 0.95rem;
-        color: #ffd9b8;
-        font-weight: 700;
-        white-space: normal;
-        word-break: break-word;
-        line-height: 1.25;
+        color: #ffd9b0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 8px;
       }
 
       .count {
         font-size: 0.9rem;
-        color: #ffb890;
-        font-weight: 800;
-        min-width: 36px;
-        text-align: right;
-        text-shadow: 0 2px 6px rgba(40, 16, 12, 0.16);
-        flex-shrink: 0;
+        color: #ffb47b;
+        font-weight: 600;
       }
 
-      /* ---------- 前三名强化（余焰 / 铜金 / 仪式感） ---------- */
+      // 前三名特殊样式
       &.rank-1 {
         background: linear-gradient(
-          135deg,
-          #ffd9b8 0%,
-          #ffb890 45%,
-          #ff9a66 100%
+          90deg,
+          rgba(255, 140, 60, 0.2),
+          transparent
         );
-        color: #2b1208;
+        border-color: #ff974f;
 
-        box-shadow: 0 18px 56px rgba(255, 140, 70, 0.14),
-          0 0 30px rgba(255, 160, 110, 0.06);
-
-        .rank {
-          color: #2b1208;
-          text-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
-        }
-
-        .name {
-          color: #2b1208;
-        }
-
+        .rank,
+        .name,
         .count {
-          color: #2b1208;
+          color: #ffd9b0;
+          font-weight: 700;
         }
       }
 
       &.rank-2 {
         background: linear-gradient(
-          135deg,
-          #ffdec6 0%,
-          #ffb890 55%,
-          #d98a5a 100%
+          90deg,
+          rgba(255, 180, 100, 0.15),
+          transparent
         );
-        color: #2b1208;
-
-        box-shadow: 0 14px 48px rgba(200, 110, 60, 0.12);
-
-        .rank {
-          color: #2b1208;
-        }
-
-        .name {
-          color: #2b1208;
-        }
-
-        .count {
-          color: #2b1208;
-        }
+        border-color: #ffb47b;
       }
 
       &.rank-3 {
         background: linear-gradient(
-          135deg,
-          rgba(255, 200, 160, 0.12) 0%,
-          rgba(255, 160, 110, 0.16) 60%,
-          rgba(200, 110, 60, 0.22) 100%
+          90deg,
+          rgba(255, 160, 80, 0.1),
+          transparent
         );
-        color: #ffd9b8;
+        border-color: #ff9a66;
+      }
+    }
 
-        box-shadow: 0 10px 36px rgba(160, 90, 40, 0.12);
+    // 移动端排行榜自动收起
+    @media (max-width: 1024px) {
+      &.expanded .ranking-list {
+        display: block;
+      }
+      &:not(.expanded) .ranking-list {
+        display: none;
+      }
+    }
+  }
 
-        .rank {
-          color: #ffcf9f;
-        }
+  // Lightbox 优化
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-        .name {
-          color: #ffd9b8;
-        }
+    img {
+      max-width: 85%;
+      max-height: 85%;
+      border-radius: 20px;
+      border: 2px solid rgba(255, 140, 60, 0.3);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+    }
 
-        .count {
-          color: #ffcf9f;
+    button {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      background: rgba(20, 10, 5, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 140, 60, 0.3);
+      border-radius: 50%;
+      color: #ffb890;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      &:hover {
+        background: rgba(40, 20, 10, 0.9);
+        border-color: #ff974f;
+        transform: scale(1.1);
+      }
+
+      &.close {
+        top: 20px;
+        right: 20px;
+      }
+
+      &.prev {
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      &.next {
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
+  }
+
+  // 上传弹窗优化
+  .upload-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 5, 3, 0.8);
+    backdrop-filter: blur(12px);
+  }
+
+  .upload-modal {
+    width: 600px;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: rgba(15, 8, 4, 0.9);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 140, 60, 0.3);
+    border-radius: 32px;
+    padding: 32px;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+    color: var(--text-light);
+
+    h3 {
+      margin: 0 0 24px;
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #ffdbb0, #ffb47b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-align: center;
+    }
+
+    .tip-container {
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 4px solid #ff974f;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+
+      .tips-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          position: relative;
+          padding-left: 24px;
+          margin-bottom: 12px;
+          font-size: 0.95rem;
+          color: #ecdacb;
+
+          &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 8px;
+            height: 8px;
+            background: #ff974f;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff974f;
+          }
         }
       }
     }
 
-    /* 淡入淡出（保留原过渡类） */
-    .fade-enter-active,
-    .fade-leave-active {
-      transition: opacity 0.28s ease;
+    .stats {
+      text-align: center;
+      font-size: 1rem;
+      margin: 20px 0;
+      color: #ffb47b;
+      strong {
+        color: #ffb47b;
+        font-size: 1.2rem;
+      }
     }
 
-    .fade-enter-from,
-    .fade-leave-to {
-      opacity: 0;
+    label {
+      display: block;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      color: #ffd9b0;
+
+      input {
+        width: 100%;
+        margin-top: 8px;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 140, 60, 0.2);
+        border-radius: 30px;
+        color: var(--text-light);
+        font-size: 1rem;
+        transition: all 0.3s;
+
+        &:focus {
+          outline: none;
+          border-color: #ff974f;
+          box-shadow: 0 0 0 3px rgba(255, 100, 30, 0.2);
+        }
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 16px;
+      margin-top: 32px;
+
+      button {
+        padding: 12px 32px;
+        border: none;
+        border-radius: 40px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+
+        &:not(.cancel) {
+          background: linear-gradient(145deg, #ff974f, #ff4f1e);
+          color: #1a0c06;
+          box-shadow: 0 15px 30px rgba(255, 80, 20, 0.3);
+
+          &:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(255, 100, 30, 0.4);
+          }
+
+          &:disabled {
+            opacity: 0.5;
+            animation: cursorAnimation_disabled 1s infinite step-start;
+          }
+        }
+
+        &.cancel {
+          background: transparent;
+          border: 1px solid rgba(255, 140, 60, 0.3);
+          color: #ffb47b;
+
+          &:hover {
+            background: rgba(255, 100, 30, 0.1);
+          }
+        }
+      }
     }
   }
+
+  // 浮动小人（位置微调）
+  .floating-chibis {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99;
+
+    .chibi-img {
+      position: absolute;
+      width: 80px;
+      height: auto;
+      pointer-events: auto;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+      transition: transform 0.2s;
+      z-index: 5;
+
+      &:hover {
+        transform: scale(1.1) rotate(5deg);
+      }
+    }
+  }
+}
+
+// 动画定义
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -1,30 +1,53 @@
 <template>
-  <div class="megumi-message-board" aria-live="polite">
-
-    <!-- 背景轮播（两组用于桌面/移动不同裁切） -->
+  <div class="changli-message-board" aria-live="polite">
+    <!-- ========== 背景层：保留原有轮播，新增装饰 ========== -->
+    <!-- 原有轮播背景（保留） -->
     <div class="carousel carousel1" aria-hidden="true">
-      <img v-for="(src, idx) in randomFive" :key="idx" :src="src" class="carousel-image"
-        :class="{ active: idx === currentIndex }" />
+      <img
+        v-for="(src, idx) in randomFive"
+        :key="idx"
+        :src="src"
+        class="carousel-image"
+        :class="{ active: idx === currentIndex }"
+      />
     </div>
     <div class="carousel carousel2" aria-hidden="true">
-      <img v-for="(src, idx) in randomFive2" :key="idx" :src="src" class="carousel-image"
-        :class="{ active: idx === currentIndex }" />
+      <img
+        v-for="(src, idx) in randomFive2"
+        :key="idx"
+        :src="src"
+        class="carousel-image"
+        :class="{ active: idx === currentIndex }"
+      />
     </div>
-    <!-- 半透明顶部标题 -->
-    <header class="board-header" role="banner">
-      <div class="title-wrap">
-        <h1>留言板</h1>
-        <span class="title-count">（共{{ count }}条）</span>
 
-        <p class="subtitle">寄一纸焚愿，留一句余烬暖言</p>
+
+
+    <!-- ========== 顶部标题（长离风格增强） ========== -->
+    <header class="board-header" role="banner">
+
+      <div class="title-wrap">
+        
+        <h1>焚愿留言板</h1>
+        <span class="title-count">（共{{ count }}条）</span>
+   
       </div>
+
+      <p class="subtitle">
+        <span class="quote-left">“</span>
+        寄一纸焚愿，留一句余烬暖言
+        <span class="quote-right">”</span>
+      </p>
+
+      <!-- 新增：墨迹装饰 [citation:8] -->
+      <div class="ink-splash"></div>
     </header>
 
-    <!-- 留言展示区 -->
+    <!-- ========== 留言展示区（卡片增强） ========== -->
     <section class="message-list">
       <transition-group name="msg" tag="div" class="message-list-inner">
         <div v-if="loading" class="skeleton-wrap" key="skeleton">
-          <div class="skeleton" v-for="i in 1" :key="i">
+          <div class="skeleton" v-for="i in 3" :key="i">
             <div class="sk-avatar"></div>
             <div class="sk-lines">
               <div class="sk-line short"></div>
@@ -32,62 +55,131 @@
             </div>
           </div>
         </div>
-        <div v-for="(msg, idx) in messages" :key="msg.id || msg._tempId || idx" class="message-card" :data-index="idx"
-          tabindex="0" role="article" :aria-label="`留言来自 ${msg.name || '匿名'}，内容：${msg.content}`">
+        <div
+          v-for="(msg, idx) in messages"
+          :key="msg.id || msg._tempId || idx"
+          class="message-card"
+          :data-index="idx"
+          tabindex="0"
+          role="article"
+          :aria-label="`留言来自 ${msg.name || '匿名'}，内容：${msg.content}`"
+          :class="'flame-level-' + ((idx % 4) + 1)"
+        >
+          <!-- 新增：卡片火焰背景（随离火层数变化） -->
+          <div class="card-flame-bg" :class="'level-' + ((idx % 4) + 1)"></div>
+
           <div class="message-meta">
             <div class="left-meta">
               <div class="name-avatar" :title="msg.name || '匿名'">
                 {{ getInitial(msg.name) }}
+                <!-- 新增：头像周围小火苗 -->
+                <span class="avatar-spark"></span>
               </div>
               <div class="meta-texts">
                 <div class="message-name">{{ msg.name || "匿名" }}</div>
                 <div class="message-time">{{ formatTime(msg.created_at) }}</div>
               </div>
             </div>
-            <!-- HTML：把 id/class 复制到对应位置 -->
-            <div class="shouan-icon" role="button" tabindex="0" aria-label="共鸣之晶">
-              <!-- 替换用：焰棋徽（aria-hidden） -->
-              <svg viewBox="0 0 48 48" width="36" height="36" aria-hidden="true" focusable="false">
 
-                <!-- 核心：抽象火焰 / 棋子意象（兼具策略与焰） -->
-                <g class="ember-core" transform="translate(0,0)">
+            <!-- 心眼图标（增强版）[citation:1] -->
+            <div
+              class="shinzo-icon"
+              role="button"
+              tabindex="0"
+              aria-label="心眼·离火"
+            >
+              <svg
+                viewBox="0 0 48 48"
+                width="40"
+                height="40"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <!-- 四层火焰核心（根据索引变化颜色） -->
+                <g class="flame-core" :class="'flame-level-1'">
                   <path
-                    d="M24 14 C26 18, 30 20, 28 26 C26 32, 22 34, 24 38 C20 34, 18 30, 20 26 C22 22, 24 20, 24 14 Z" />
+                    d="M24 8 C20 14, 16 20, 20 26 C24 32, 30 34, 28 38 C22 36, 18 30, 22 24 C24 20, 26 16, 24 8 Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M28 12 C30 16, 34 18, 32 24 C30 30, 26 32, 28 36 C24 34, 22 28, 26 22 C28 18, 29 16, 28 12 Z"
+                    fill="currentColor"
+                    opacity="0.7"
+                  />
                 </g>
-
-                <!-- 飞烬 / 星屑 -->
-                <g class="ember-sparks" aria-hidden="true">
-                  <circle cx="6" cy="10" r="0.95" />
-                  <circle cx="42" cy="14" r="0.8" />
-                  <circle cx="38" cy="36" r="0.75" />
-                  <circle cx="10" cy="34" r="0.7" />
+             
+                <!-- 飞烬火星（动态） -->
+                <g class="sparks">
+                  <circle cx="8" cy="12" r="1.5" fill="#ffb47b" />
+                  <circle cx="40" cy="16" r="1.2" fill="#ffb47b" />
+                  <circle cx="36" cy="36" r="1.8" fill="#ffb47b" />
+                  <circle cx="12" cy="38" r="1.1" fill="#ffb47b" />
                 </g>
               </svg>
-
+              <!-- 新增：悬停时出现的墨迹光圈 [citation:8] -->
+              <div class="icon-ink-ring"></div>
             </div>
           </div>
 
           <p class="message-content">{{ msg.content }}</p>
+
+          <!-- 新增：留言底部火焰装饰条（随离火层数） -->
+          <div class="card-footer-flame">
+            <span class="flame-segment" v-for="seg in 4" :key="seg"></span>
+          </div>
         </div>
       </transition-group>
     </section>
 
-    <!-- 底部发送区 -->
+    <!-- ========== 底部发送区（增强版） ========== -->
     <section class="message-form" aria-label="写下你的留言">
+      <!-- 新增：四层动态火焰边框 [citation:2] -->
+      <div class="form-flame-border">
+        <div class="flame-layer layer1"></div>
+        <div class="flame-layer layer2"></div>
+        <div class="flame-layer layer3"></div>
+        <div class="flame-layer layer4"></div>
+      </div>
+
+      <!-- 新增：焚香烟雾效果 -->
+      <div class="incense-smoke"></div>
+
       <label class="sr-only" for="mb-name">你的昵称</label>
-      <input id="mb-name" v-model="name" type="text" placeholder="你的昵称" @keydown.enter.prevent />
+      <input
+        id="mb-name"
+        v-model="name"
+        type="text"
+        placeholder="你的昵称"
+        @keydown.enter.prevent
+      />
 
       <label class="sr-only" for="mb-content">留言内容</label>
-      <textarea id="mb-content" v-model="content" placeholder="写下你的留言..." @keydown.ctrl.enter.prevent="submitMessage"
-        @input="autoGrow" ref="textareaRef" />
+      <textarea
+        id="mb-content"
+        v-model="content"
+        placeholder="写下你的留言..."
+        @keydown.ctrl.enter.prevent="submitMessage"
+        @input="autoGrow"
+        ref="textareaRef"
+      />
 
       <div class="form-row">
-        <div class="hint">按 <kbd>Ctrl</kbd> + <kbd>Enter</kbd> 快捷发送</div>
+        <div class="hint">
+          <span class="hint-flame"></span>
+          <span class="hint-text"
+            >按 <kbd>Ctrl</kbd> + <kbd>Enter</kbd> 焚音传讯</span
+          >
+        </div>
         <button @click="submitMessage" :disabled="isSending || !content.trim()">
-          <span v-if="!isSending">发送</span>
-          <span v-else>发送中…</span>
+          <span v-if="!isSending">· 焚音寄愿 ·</span>
+          <span v-else>· 余烬燃信中 ···</span>
+          <!-- 新增：按钮火星 -->
+          <span class="button-spark"></span>
         </button>
       </div>
+
+      <!-- 新增：底部棋局纹样 [citation:1][citation:8] -->
+      <div class="form-chess-pattern"></div>
     </section>
   </div>
 </template>
@@ -96,15 +188,46 @@
 import { ref, onMounted, nextTick, onBeforeUnmount } from "vue";
 import { getMessageList, createMessage } from "@/api/modules/message";
 
+// 原有数据逻辑保持不变
 const messages = ref<any[]>([]);
 const count = ref(0);
 const name = ref(localStorage.getItem("shou_name") || "");
 const content = ref("");
 const loading = ref(true);
 const isSending = ref(false);
-
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
+
+// 原有轮播相关变量
+const currentIndex = ref(0);
+let Imgtimer: number | undefined;
+
+// 轮播图片导入（保持不变）
+const modules = import.meta.glob("@/assets/images1/*.{jpg,png,jpeg,webp}", {
+  eager: true,
+});
+const allSrcs: string[] = Object.values(modules).map((mod: any) => mod.default);
+const modules2 = import.meta.glob("@/assets/images2/*.{jpg,png,jpeg,webp}", {
+  eager: true,
+});
+const allSrcs2: string[] = Object.values(modules2).map(
+  (mod: any) => mod.default
+);
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const randomFive = ref<string[]>(shuffle(allSrcs).slice(0, 5));
+const randomFive2 = ref<string[]>(shuffle(allSrcs2).slice(0, 5));
+
+
+
+// 原有方法保持不变
 const fetchMessages = async () => {
   loading.value = true;
   try {
@@ -127,9 +250,7 @@ const submitMessage = async () => {
     localStorage.setItem("shou_name", name.value);
     content.value = "";
     await nextTick();
-    // 发送请求
     await createMessage(payload);
-    // 重新同步列表（更可靠）
     await fetchMessages();
   } catch (err) {
     console.error(err);
@@ -141,7 +262,6 @@ const submitMessage = async () => {
 const formatTime = (time: string) => {
   if (!time) return "";
   const d = new Date(time);
-  // 例如：2025-08-11 15:30
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
@@ -163,66 +283,44 @@ const autoGrow = (e?: Event) => {
   ta.style.height = h + "px";
 };
 
-
-
-// ========== 背景图片导入与轮播 ==========
-const modules = import.meta.glob('@/assets/images1/*.{jpg,png,jpeg,webp}', { eager: true })
-const allSrcs: string[] = Object.values(modules).map((mod: any) => mod.default)
-
-const modules2 = import.meta.glob('@/assets/images2/*.{jpg,png,jpeg,webp}', { eager: true })
-const allSrcs2: string[] = Object.values(modules2).map((mod: any) => mod.default)
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = arr.slice()
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-      ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
-const randomFive = ref<string[]>(shuffle(allSrcs).slice(0, 5))
-const randomFive2 = ref<string[]>(shuffle(allSrcs2).slice(0, 5))
-
-const currentIndex = ref(0)
-let Imgtimer: number | undefined
-
-
 onMounted(() => {
   fetchMessages();
   Imgtimer = window.setInterval(() => {
-    currentIndex.value = (currentIndex.value + 1) % (Math.max(1, randomFive.value.length))
-  }, 5200)
+    currentIndex.value =
+      (currentIndex.value + 1) % Math.max(1, randomFive.value.length);
+  }, 5200);
   nextTick(() => autoGrow());
 });
 
 onBeforeUnmount(() => {
-  if (Imgtimer) clearInterval(Imgtimer)
-})
+  if (Imgtimer) clearInterval(Imgtimer);
+});
 </script>
 
 <style scoped lang="scss">
-/* ---------------- 守岸人 主题 - 替换版 .megumi-message-board ---------------- */
-.megumi-message-board {
+.changli-message-board {
+  /* 长离主题色系 */
+  --deep-bg: #0a0503;
+  --accent: #ff4f1e;
+  --accent-2: #ff974f;
+  --accent-3: #ffcb9a;
+  --text-light: #f7e4d4;
+  --glass-bg: rgba(10, 5, 3, 0.7);
+  --flame-glow: rgba(255, 80, 20, 0.3);
+
   position: relative;
   min-height: 100vh;
-  padding-top: 110px;
+  padding-top: 140px;
   display: flex;
   flex-direction: column;
-  /* 深海 / 黑海岸色调：深蓝 -> 海蓝 -> 冰蓝（带微弱星尘） */
-  background: linear-gradient(180deg,
-      #000 0%,
-      #fff 100%);
+  background: linear-gradient(135deg, #1a0c06 0%, #0a0503 50%, #1f0e07 100%);
+  font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  color: var(--text-light);
+  overflow-x: hidden;
 
-  font-family: "Noto Sans SC", "Noto Sans", system-ui, -apple-system, "Segoe UI",
-    Roboto, Arial;
-  color: #e6f7fb;
-  overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-
+  /* ========== 背景层（轮播 + 新增装饰） ========== */
   .carousel {
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
@@ -231,7 +329,11 @@ onBeforeUnmount(() => {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(2, 8, 14, 0.15), rgba(2, 8, 14, 0.25));
+      background: linear-gradient(
+        180deg,
+        rgba(10, 5, 3, 0.4),
+        rgba(10, 5, 3, 0.3)
+      );
       pointer-events: none;
       z-index: 1;
     }
@@ -242,699 +344,875 @@ onBeforeUnmount(() => {
       height: 100%;
       object-fit: cover;
       opacity: 0;
-      transition: opacity 1s ease, transform 10s linear;
-      filter: blur(0.8px) saturate(0.92);
-      transform: scale(1.05);
+      transition: opacity 1.5s ease;
+  
 
       &.active {
         opacity: 1;
-        transform: scale(1);
       }
     }
   }
 
-  /* 可在小屏使用第二组竖图，避免裁切失衡 */
   .carousel2 {
     display: none;
   }
 
-  /* ---------- 顶部标题（毛玻璃 + 晶体装饰） ---------- */
+
+  /* ========== 顶部标题（增强版） ========== */
   .board-header {
     position: absolute;
-    top: 72px;
+    top: 60px;
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 32px);
-    max-width: 960px;
-    /* 长离主题：暗底 + 微暖余焰光 */
+    max-width: 1000px;
+    background: rgba(10, 5, 3, 0.7);
+    backdrop-filter: blur(1px);
+    padding: 18px 30px;
+    border-radius: 60px;
+    border: 1px solid rgba(255, 140, 60, 0.3);
+    box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.8),
+      0 0 40px rgba(255, 80, 20, 0.2);
+    z-index: 10;
+    overflow: hidden;
 
-    padding: 14px 18px;
-    border-radius: 14px;
-    box-shadow: 0 14px 44px rgba(6, 4, 4, 0.6), inset 0 1px 0 rgba(255, 160, 110, 0.02);
-    backdrop-filter: blur(2px) saturate(110%);
-    z-index: 6;
-    border: 1px solid rgba(255, 120, 70, 0.06);
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        var(--accent),
+        var(--accent-2),
+        transparent
+      );
+      animation: border-flow 6s infinite;
+    }
+
+
 
     .title-wrap {
       display: flex;
       align-items: center;
       gap: 12px;
+      margin-left: 140px;
+
+ 
 
       h1 {
         margin: 0;
-        font-size: 18px;
-        color: #ffb890;
-        /* 暖金色标题 */
-        letter-spacing: 0.4px;
-        font-weight: 900;
-        text-shadow: 0 2px 14px rgba(80, 30, 18, 0.28);
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ffdbb0, #ffb47b, #ff6324);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        letter-spacing: 2px;
       }
 
       .title-count {
-        color: #ffdebe;
-        /* 暖米色偏亮 */
-        font-size: 12px;
-        font-weight: 700;
-        margin-left: 6px;
+        font-size: 1rem;
+        color: #ffb47b;
       }
 
-      .subtitle {
-        margin: 0;
-        margin-left: auto;
-        color: rgba(245, 232, 220, 0.92);
-        /* 暖米色文本 */
-        font-size: 13px;
-        font-weight: 600;
-        /* 微光下沉效果，契合仪式感 */
-        text-shadow: 0 1px 8px rgba(255, 120, 70, 0.04);
+  
+    }
+
+    .subtitle {
+      margin: 8px 0 0 140px;
+      color: #ffd9b0;
+      font-size: 1rem;
+      font-style: italic;
+
+      .quote-left,
+      .quote-right {
+        color: #ff974f;
+        font-size: 1.2rem;
+        opacity: 0.6;
       }
     }
 
-    /* 角落的余焰光斑装饰（视觉） */
-    &::before {
-      content: "";
+    /* 墨迹装饰 [citation:8] */
+    .ink-splash {
       position: absolute;
-      right: 12px;
-      top: 8px;
-      width: 84px;
-      height: 48px;
-      background:
-        radial-gradient(34px 16px at 20% 40%, rgba(255, 180, 120, 0.12), transparent 30%),
-        radial-gradient(40px 20px at 60% 60%, rgba(255, 120, 70, 0.08), transparent 30%);
-      filter: blur(6px);
-      pointer-events: none;
-      z-index: -1;
+      bottom: -10px;
+      right: 20px;
+      width: 100px;
+      height: 40px;
+      background: radial-gradient(
+        ellipse,
+        rgba(255, 100, 30, 0.1),
+        transparent
+      );
+      filter: blur(8px);
+      border-radius: 50%;
     }
-
-
   }
 
-  /* ---------- 留言列表 ---------- */
+  /* ========== 留言列表 ========== */
   .message-list {
-    z-index: 2;
+    z-index: 5;
     position: relative;
     flex: 1;
     overflow-y: auto;
-    padding: 28px 20px 340px;
-    /* 给底部输入更多空间 */
-    margin-top: 18px;
+    padding: 28px 20px 300px;
 
     .message-list-inner {
-      max-width: 960px;
-      max-height: 80vh;
+      max-width: 1000px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      position: relative;
-      z-index: 2;
-      overflow-y: auto;
+      gap: 20px;
     }
 
-    /* skeleton 样式替换成守岸人色系 */
+    /* skeleton 加载 */
     .skeleton-wrap {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 20px;
 
       .skeleton {
         display: flex;
-        gap: 12px;
-        align-items: center;
-        padding: 12px;
-        background: linear-gradient(180deg,
-            rgba(8, 36, 48, 0.36),
-            rgba(6, 34, 44, 0.28));
-        border-radius: 12px;
-        box-shadow: 0 6px 18px rgba(2, 18, 26, 0.5);
-        border: 1px solid rgba(80, 160, 200, 0.03);
+        gap: 14px;
+        padding: 20px;
+        background: rgba(20, 10, 5, 0.5);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 140, 60, 0.1);
       }
 
       .sk-avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-        background: linear-gradient(90deg, #d16711, #f0831e);
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        background: linear-gradient(90deg, #ff974f40, #ff4f1e40);
+        animation: skeleton-pulse 1.5s infinite alternate;
       }
 
       .sk-lines {
         flex: 1;
 
         .sk-line {
-          height: 10px;
-          border-radius: 6px;
-          background: linear-gradient(90deg,
-              rgba(255, 255, 255, 0.06),
-              rgba(150, 220, 250, 0.03));
-          margin-bottom: 8px;
-        }
+          height: 14px;
+          border-radius: 7px;
+          background: rgba(255, 140, 60, 0.2);
+          margin-bottom: 10px;
+          animation: skeleton-pulse 1.5s infinite alternate;
 
-        .sk-line.short {
-          width: 40%;
+          &.short {
+            width: 40%;
+          }
         }
       }
     }
   }
 
-  /* ---------- 单条消息卡片（ ---------- */
-  /* 长离风格：留言卡（暗焰匣） */
+  /* 留言卡片（增强版） */
   .message-card {
-    /* 暗底 + 匣中余焰轻映 */
-    background: linear-gradient(180deg, rgba(10, 6, 4, 0.16), rgba(8, 4, 3, 0.22));
-    border-radius: 14px;
-    padding: 14px 16px;
-    margin: 6px auto;
-    width: calc(100% - 48px);
-    max-width: 960px;
-
-    border: 1px solid rgba(255, 120, 70, 0.04);
-    transition: transform 0.32s cubic-bezier(.2, .9, .3, 1), box-shadow 0.32s, border-color 0.32s;
-    transform-origin: center;
     position: relative;
-    z-index: 3;
-    overflow: visible;
+    background: rgba(15, 8, 4, 0.6);
+    backdrop-filter: blur(2px);
+    border-radius: 28px;
+    padding: 22px 26px;
+    border: 1px solid rgba(255, 140, 60, 0.2);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+    transition: all 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+    overflow: hidden;
 
-    /* 右上角保留（可做更淡的余焰光斑） */
-    &::before {
-      content: "";
+    /* 四层离火卡片背景 [citation:2] */
+    .card-flame-bg {
       position: absolute;
-      right: 10px;
-      top: 8px;
-      width: 44px;
-      height: 44px;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255, 180, 120, 0.08), transparent 30%),
-        radial-gradient(circle at 70% 70%, rgba(255, 120, 70, 0.04), transparent 30%);
-      filter: blur(3px);
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 100%;
+      background: radial-gradient(
+        circle at 70% 50%,
+        transparent 30%,
+        rgba(255, 140, 60, 0.1)
+      );
+      filter: blur(30px);
+      opacity: 0;
+      transition: opacity 0.4s;
       pointer-events: none;
-      border-radius: 8px;
-      z-index: 2;
+
+      &.level-1 {
+        background: radial-gradient(circle at 70% 50%, #ff974f20, transparent);
+      }
+      &.level-2 {
+        background: radial-gradient(circle at 70% 50%, #ffb47b30, transparent);
+      }
+      &.level-3 {
+        background: radial-gradient(circle at 70% 50%, #ffc99e40, transparent);
+      }
+      &.level-4 {
+        background: radial-gradient(circle at 70% 50%, #ffe0ba50, transparent);
+      }
     }
 
     &:hover {
-      transform: translateY(-8px) scale(1.01);
-      box-shadow: 0 34px 100px rgba(6, 4, 4, 0.8);
-      border-color: rgba(255, 140, 90, 0.12);
-      background: linear-gradient(180deg, rgba(10, 6, 4, 0.56), rgba(8, 4, 3, 0.72));
+      transform: translateY(-6px);
+      border-color: rgba(255, 140, 60, 0.5);
+      box-shadow: 0 30px 60px -10px rgba(255, 100, 30, 0.3);
+
+      .card-flame-bg {
+        opacity: 0.6;
+      }
     }
 
     .message-meta {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 8px;
+      gap: 14px;
+      margin-bottom: 14px;
 
       .left-meta {
         display: flex;
-        gap: 12px;
+        gap: 16px;
         align-items: center;
 
         .name-avatar {
-          width: 48px;
-          height: 48px;
-          border-radius: 10px;
-          display: inline-flex;
+          position: relative;
+          width: 56px;
+          height: 56px;
+          border-radius: 18px;
+          display: flex;
           align-items: center;
           justify-content: center;
-          font-weight: 900;
+          font-weight: 700;
+          font-size: 1.3rem;
           color: #2b1208;
-          background: linear-gradient(180deg, #ffd9b8 0%, #ffb890 60%);
-          border: 2px solid rgba(255, 160, 110, 0.06);
-          box-shadow: inset 0 -6px 18px rgba(20, 8, 6, 0.06);
-          font-size: 16px;
-          flex-shrink: 0;
+          background: linear-gradient(145deg, #ffd9b0, #ff974f);
+          border: 2px solid rgba(255, 160, 110, 0.4);
+          box-shadow: 0 10px 25px rgba(255, 100, 30, 0.3);
+
+          .avatar-spark {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #ffb47b, #ff4f1e);
+            border-radius: 50%;
+            filter: blur(3px);
+            animation: spark-pulse 2s infinite alternate;
+          }
         }
 
         .meta-texts {
           .message-name {
-            font-size: 15px;
-            color: #ffb890;
-            /* 暖金色 */
-            font-weight: 800;
-            line-height: 1;
-            text-shadow: 0 3px 8px rgba(40, 16, 12, 0.35);
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffd9b0;
+            margin-bottom: 4px;
           }
-
           .message-time {
-            font-size: 12px;
-            color: rgba(245, 232, 220, 0.78);
-            margin-top: 2px;
+            font-size: 0.85rem;
+            color: #b99f8b;
           }
         }
       }
 
-      /* 右侧：焰棋徽（替代晶格） */
-      .shouan-icon {
-        display: inline-grid;
-        place-items: center;
-        width: 52px;
-        height: 52px;
-        border-radius: 12px;
-        cursor: pointer;
-        user-select: none;
+      /* 心眼图标（增强版） */
+      .shinzo-icon {
         position: relative;
-        z-index: 4;
-
-        background: linear-gradient(180deg, rgba(10, 6, 4, 0.92), rgba(12, 8, 6, 0.94));
-        border: 1px solid rgba(255, 120, 70, 0.06);
-        box-shadow: 0 8px 30px rgba(6, 4, 4, 0.64), inset 0 1px 0 rgba(255, 160, 110, 0.02);
-        transition: transform 260ms cubic-bezier(.2, .9, .3, 1), box-shadow 260ms, background 260ms;
-        -webkit-tap-highlight-color: transparent;
-        will-change: transform, box-shadow, opacity;
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(20, 10, 5, 0.7);
+        border-radius: 18px;
+        border: 1px solid rgba(255, 140, 60, 0.3);
+        cursor: pointer;
+        transition: all 0.3s;
 
         svg {
-          width: 36px;
-          height: 36px;
-          display: block;
-          overflow: visible;
-        }
-
-
-
-        .ember-core path {
-          fill: #ff9a66;
-          opacity: 0.14;
-          transition: fill 260ms, opacity 260ms, transform 260ms, filter 260ms;
-          filter: drop-shadow(0 8px 20px rgba(255, 120, 70, 0.06));
-        }
-
-        .ember-sparks circle {
-          fill: rgba(255, 200, 150, 0.95);
-          opacity: 0;
-          transition: opacity 240ms, transform 360ms;
-        }
-
-        &:hover,
-        &:focus {
-          transform: translateY(-6px) scale(1.04);
-          box-shadow: 0 28px 86px rgba(8, 4, 4, 0.72), inset 0 1px 0 rgba(255, 160, 110, 0.02);
-          background: linear-gradient(180deg, rgba(14, 8, 6, 0.96), rgba(16, 10, 8, 0.98));
-
-
-
-          .ember-core path {
-            opacity: 1;
-            transform: scale(1.03);
-            fill: #ff9a66;
-            filter: drop-shadow(0 18px 46px rgba(255, 120, 70, 0.12));
-          }
-
-          .ember-sparks circle {
-            opacity: 1;
-
-            &:nth-child(1) {
-              transform: translate(-4px, -6px) scale(1.4);
-            }
-
-            &:nth-child(2) {
-              transform: translate(6px, -4px) scale(1.2);
-            }
-
-            &:nth-child(3) {
-              transform: translate(4px, 6px) scale(1.1);
-            }
-
-            &:nth-child(4) {
-              transform: translate(-6px, 4px) scale(1.15);
-            }
-          }
-        }
-
-        &:active {
-          transform: translateY(-2px) scale(0.99);
-        }
-
-        &:focus {
-          outline: none;
-          box-shadow: 0 28px 86px rgba(8, 4, 4, 0.72), 0 0 0 6px rgba(255, 120, 70, 0.06);
-        }
-
-        &.active {
-          .ember-core path {
-            opacity: 1;
-            animation: emberCorePulse 2000ms ease-in-out infinite;
-          }
-
-
-        }
-
-        /* 动画：浮动 / 框体摆动 / 核心呼吸 / 火星上浮 */
-        animation: emberFloat 8s ease-in-out infinite;
-
-
-
-        .ember-core path {
-          animation: emberCoreBreathe 4.6s ease-in-out infinite;
-          transform-origin: 50% 50%;
-        }
-
-        .ember-sparks circle {
-          animation: emberSparkFloat 1800ms ease-in-out infinite;
-        }
-
-        @media (max-width: 480px) {
           width: 44px;
           height: 44px;
+          filter: drop-shadow(0 0 15px rgba(255, 100, 30, 0.4));
+          z-index: 2;
+        }
 
-          svg {
-            width: 30px;
-            height: 30px;
+        /* 四层火焰颜色 */
+        .flame-core.flame-level-1 {
+          color: #ff974f;
+        }
+        .flame-core.flame-level-2 {
+          color: #ffb47b;
+        }
+        .flame-core.flame-level-3 {
+          color: #ffc99e;
+        }
+        .flame-core.flame-level-4 {
+          color: #ffe0ba;
+        }
+
+        .sparks circle {
+          animation: spark-float 2.5s infinite alternate;
+          &:nth-child(2) {
+            animation-delay: 0.3s;
+          }
+          &:nth-child(3) {
+            animation-delay: 0.6s;
+          }
+          &:nth-child(4) {
+            animation-delay: 0.9s;
           }
         }
-      }
 
-      /* ============ keyframes ============ */
-      @keyframes emberFloat {
-        0% {
-          transform: translateY(0) scale(1);
-        }
-
-        40% {
-          transform: translateY(-6px) scale(1.015);
-        }
-
-        70% {
-          transform: translateY(-3px) scale(1.008);
-        }
-
-        100% {
-          transform: translateY(0) scale(1);
-        }
-      }
-
-      @keyframes emberFrameSway {
-        0% {
-          transform: rotate(-0.6deg) translateY(0);
-        }
-
-        50% {
-          transform: rotate(0.6deg) translateY(-2px);
-        }
-
-        100% {
-          transform: rotate(-0.6deg) translateY(0);
-        }
-      }
-
-      @keyframes emberCoreBreathe {
-        0% {
-          transform: scale(1);
-          opacity: 0.9;
-          filter: drop-shadow(0 6px 18px rgba(255, 120, 70, 0.06));
-        }
-
-        50% {
-          transform: scale(1.04);
-          opacity: 1;
-          filter: drop-shadow(0 18px 46px rgba(255, 140, 80, 0.12));
-        }
-
-        100% {
-          transform: scale(1);
-          opacity: 0.9;
-          filter: drop-shadow(0 6px 18px rgba(255, 120, 70, 0.06));
-        }
-      }
-
-      @keyframes emberSparkFloat {
-        0% {
+        /* 墨迹光圈 [citation:8] */
+        .icon-ink-ring {
+          position: absolute;
+          width: 80px;
+          height: 80px;
+          border: 1px solid rgba(255, 140, 60, 0.2);
+          border-radius: 50%;
           opacity: 0;
-          transform: translateY(0) scale(0.8);
-          filter: blur(0);
+          transition: all 0.4s;
+          pointer-events: none;
         }
 
-        35% {
-          opacity: 1;
-          transform: translateY(-6px) scale(1.15);
-          filter: blur(.2px);
-        }
+        &:hover {
+          transform: translateY(-4px) scale(1.05);
+          border-color: rgba(255, 140, 60, 0.8);
+          box-shadow: 0 15px 30px rgba(255, 100, 30, 0.4);
 
-        70% {
-          opacity: 0.6;
-          transform: translateY(-10px) scale(1.25);
-          filter: blur(.8px);
-        }
-
-        100% {
-          opacity: 0;
-          transform: translateY(-14px) scale(1.35);
-          filter: blur(1.6px);
-        }
-      }
-
-      @keyframes emberCorePulse {
-        0% {
-          transform: scale(1);
-          filter: drop-shadow(0 6px 18px rgba(255, 120, 70, 0.06));
-        }
-
-        50% {
-          transform: scale(1.06);
-          filter: drop-shadow(0 18px 46px rgba(255, 140, 80, 0.12));
-        }
-
-        100% {
-          transform: scale(1);
-          filter: drop-shadow(0 6px 18px rgba(255, 120, 70, 0.06));
+          .icon-ink-ring {
+            opacity: 0.5;
+            transform: scale(1.2);
+          }
         }
       }
     }
 
-    /* .message-meta end */
-
     .message-content {
-      font-size: 15px;
-      color: rgba(245, 232, 220, 0.96);
+      font-size: 1rem;
       line-height: 1.7;
+      color: #ecdacb;
+      margin: 0;
+      padding-left: 72px;
       white-space: pre-wrap;
       word-break: break-word;
-      margin: 0;
-      padding-bottom: 2px;
-      letter-spacing: 0.2px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* 卡片底部火焰装饰条 */
+    .card-footer-flame {
+      position: absolute;
+      bottom: 0;
+      left: 10%;
+      width: 80%;
+      height: 4px;
+      display: flex;
+      gap: 2px;
+      opacity: 0.3;
+      transition: opacity 0.3s;
+
+      .flame-segment {
+        flex: 1;
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        border-radius: 2px;
+        animation: segment-flicker 2s infinite alternate;
+
+        &:nth-child(1) {
+          animation-delay: 0s;
+        }
+        &:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        &:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+        &:nth-child(4) {
+          animation-delay: 0.6s;
+        }
+      }
+    }
+
+    &:hover .card-footer-flame {
+      opacity: 0.8;
     }
   }
 
-
-  /* ---------- 固定底部输入区（守岸人风格） ---------- */
+  /* ========== 底部发送区（增强版） ========== */
   .message-form {
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 18px;
+    bottom: 24px;
     width: calc(100% - 32px);
-    max-width: 960px;
+    max-width: 1000px;
+    background: rgba(10, 5, 3, 0.85);
+    backdrop-filter: blur(20px);
+    padding: 24px 30px;
+    border-radius: 60px;
+    border: 1px solid rgba(255, 140, 60, 0.3);
+    box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.9),
+      0 0 50px rgba(255, 80, 20, 0.2);
+    z-index: 20;
+    overflow: hidden;
 
-    /* 暗匣背景与微弱余焰内光（写死颜色） */
-    background: linear-gradient(180deg, rgba(10, 6, 4, 0.92), rgba(8, 4, 3, 0.96));
-    padding: 14px;
-    border-radius: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    box-shadow: 0 22px 64px rgba(6, 4, 4, 0.78), inset 0 1px 0 rgba(255, 160, 110, 0.02);
-    z-index: 6;
-    border: 1px solid rgba(255, 120, 70, 0.04);
-    will-change: transform, opacity;
+    /* 四层动态火焰边框 [citation:2] */
+    .form-flame-border {
+      position: absolute;
+      inset: -2px;
+      border-radius: 62px;
+      overflow: hidden;
+      pointer-events: none;
 
-    /* 表单字段（输入/文本区） */
+      .flame-layer {
+        position: absolute;
+        inset: 0;
+        border: 2px solid transparent;
+        border-radius: 62px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            var(--accent),
+            transparent
+          )
+          border-box;
+        -webkit-mask: linear-gradient(#fff 0 0) padding-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0.3;
+        animation: flame-border-rotate 8s linear infinite;
+
+        &.layer1 {
+          filter: blur(2px);
+          opacity: 0.6;
+        }
+        &.layer2 {
+          filter: blur(4px);
+          animation-duration: 6s;
+        }
+        &.layer3 {
+          filter: blur(6px);
+          animation-duration: 10s;
+        }
+        &.layer4 {
+          filter: blur(8px);
+          animation-duration: 12s;
+        }
+      }
+    }
+
+    /* 焚香烟雾效果 */
+    .incense-smoke {
+      position: absolute;
+      bottom: 100%;
+      left: 20%;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(
+        circle,
+        rgba(255, 200, 150, 0.1),
+        transparent
+      );
+      filter: blur(20px);
+      animation: smoke-rise 8s infinite ease-out;
+      pointer-events: none;
+    }
+
     input,
     textarea {
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 120, 70, 0.06);
-      font-size: 14px;
-      outline: none;
-      transition: box-shadow 0.18s, border-color 0.18s, background 0.18s, transform 0.12s;
-      background: linear-gradient(180deg, rgba(14, 8, 6, 0.60), rgba(10, 6, 4, 0.64));
-      box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.48);
-      color: #f5e8dc;
-      /* 暖米文字 */
-      resize: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-    }
+      width: 100%;
+      padding: 16px 22px;
+      border-radius: 40px;
+      border: 1px solid rgba(255, 140, 60, 0.2);
+      background: rgba(0, 0, 0, 0.4);
+      color: #f0dac8;
+      font-size: 1rem;
+      transition: all 0.3s;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 2;
 
-    input::placeholder,
-    textarea::placeholder {
-      color: rgba(245, 230, 216, 0.46);
-    }
+      &::placeholder {
+        color: #b99f8b;
+      }
 
-    input:focus,
-    textarea:focus {
-      border-color: rgba(255, 140, 90, 0.22);
-      box-shadow: 0 10px 30px rgba(255, 120, 70, 0.06), inset 0 -6px 12px rgba(0, 0, 0, 0.4);
-      background: linear-gradient(180deg, rgba(18, 10, 8, 0.72), rgba(12, 8, 6, 0.70));
-      transform: translateY(-1px);
+      &:focus {
+        outline: none;
+        border-color: rgba(255, 140, 60, 0.8);
+        box-shadow: 0 0 0 4px rgba(255, 100, 30, 0.15);
+        background: rgba(30, 15, 8, 0.6);
+        transform: translateY(-2px);
+      }
     }
 
     textarea {
-      min-height: 64px;
-      max-height: 220px;
-      line-height: 1.6;
+      min-height: 90px;
+      resize: none;
     }
 
-    /* 行布局：提示 + 提交 */
     .form-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 20px;
 
       .hint {
-        color: rgba(245, 232, 220, 0.86);
-        font-size: 13px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        color: #ffb47b;
+
+        .hint-flame {
+          width: 20px;
+          height: 20px;
+          background: radial-gradient(circle, #ff974f, #ff4f1e);
+          border-radius: 50%;
+          filter: blur(5px);
+          animation: flame-pulse 1.5s infinite alternate;
+        }
+
+        .hint-text {
+          font-size: 0.9rem;
+        }
 
         kbd {
-          background: rgba(18, 10, 8, 0.78);
-          border-radius: 6px;
-          padding: 3px 7px;
-          border: 1px solid rgba(255, 120, 70, 0.06);
-          font-size: 12px;
-          box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.36);
-          color: #ffd9b8;
-          font-weight: 700;
-          letter-spacing: 0.6px;
+          background: rgba(30, 15, 8, 0.8);
+          border-radius: 8px;
+          padding: 4px 10px;
+          border: 1px solid #ff6324;
+          color: #ffd9b0;
+          font-size: 0.8rem;
+          margin: 0 2px;
         }
       }
 
-      /* 提交按钮：余焰渐变 + 微光呼吸 */
       button {
-        padding: 10px 18px;
-        background: linear-gradient(180deg, #ff8a4a 0%, #ff6b35 60%);
-        color: #2b1208;
+        position: relative;
+        padding: 14px 36px;
+        background: linear-gradient(145deg, #ff974f, #ff4f1e);
         border: none;
-        border-radius: 12px;
+        border-radius: 50px;
+        color: #1a0c06;
+        font-weight: 700;
+        font-size: 1rem;
         cursor: pointer;
-        font-weight: 800;
-        box-shadow: 0 14px 44px rgba(255, 120, 70, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.02);
-        transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
-        will-change: transform, box-shadow;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
+        transition: all 0.3s;
+        box-shadow: 0 15px 30px rgba(255, 80, 20, 0.5);
+        overflow: hidden;
 
-        /* 小光晕装饰（伪元素） */
-        &::after {
+        &::before {
           content: "";
-          display: inline-block;
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: radial-gradient(circle at 40% 40%, #ffd9b8 0%, #ff9a66 40%, transparent 60%);
-          box-shadow: 0 6px 18px rgba(255, 140, 80, 0.18);
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+          );
+          transition: left 0.6s;
         }
 
-        &:hover {
-          transform: translateY(-3px) scale(1.02);
-          box-shadow: 0 22px 58px rgba(255, 120, 70, 0.14);
+        .button-spark {
+          position: absolute;
+          top: -10px;
+          right: -10px;
+          width: 30px;
+          height: 30px;
+          background: radial-gradient(circle, #ffd9b0, transparent);
+          filter: blur(8px);
+          animation: spark-rotate 3s infinite linear;
         }
 
-        &:active {
-          transform: translateY(-1px) scale(0.995);
-        }
-      }
+        &:hover:not(:disabled) {
+          transform: translateY(-4px) scale(1.02);
+          box-shadow: 0 25px 40px rgba(255, 100, 30, 0.7);
 
-      /* 禁用态 */
-      button:disabled {
-        opacity: 0.52;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-        background: linear-gradient(180deg, rgba(14, 8, 6, 0.6), rgba(12, 8, 6, 0.6));
-        color: rgba(220, 200, 180, 0.6);
+          &::before {
+            left: 100%;
+          }
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          background: linear-gradient(145deg, #664433, #332211);
+        }
       }
     }
 
-
-
-    /* 轻微脉冲（可作为调用高亮或新留言提示时短暂加上 .pulse） */
-    &.pulse {
-      animation: formPulse 1200ms ease-in-out 1;
+    /* 底部棋局纹样 [citation:1][citation:8] */
+    .form-chess-pattern {
+      position: absolute;
+      bottom: -20px;
+      left: 10%;
+      width: 80%;
+      height: 20px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 20px,
+        rgba(255, 140, 60, 0.1) 20px,
+        rgba(255, 140, 60, 0.1) 40px
+      );
+      opacity: 0.3;
+      pointer-events: none;
     }
   }
 
-  /* 辅助关键帧（按钮/表单轻微呼吸与脉冲） */
-  @keyframes formPulse {
-    0% {
-      transform: translateX(-50%) scale(1);
-      box-shadow: 0 22px 64px rgba(6, 4, 4, 0.78);
-    }
-
-    40% {
-      transform: translateX(-50%) scale(1.01);
-      box-shadow: 0 28px 84px rgba(255, 120, 70, 0.12);
-    }
-
-    100% {
-      transform: translateX(-50%) scale(1);
-      box-shadow: 0 22px 64px rgba(6, 4, 4, 0.78);
-    }
-  }
-
-  /* ---------- 响应式：移动端收敛（守岸人样式） ---------- */
+  /* 响应式 */
   @media (max-width: 980px) {
-    padding-top: 90px;
-
-
     .carousel1 {
       display: none;
     }
-
     .carousel2 {
       display: block;
     }
 
-
-
     .board-header {
-      left: 12px;
-      transform: none;
-      width: calc(100% - 24px);
+      .title-wrap {
+        margin-left: 0;
+      }
+ 
     }
 
-    .message-list {
-      padding: 18px 12px 260px;
+    .talisman {
+      display: none;
+    }
+  }
 
-      .message-list-inner {
-        gap: 12px;
+  @media (max-width: 768px) {
+    padding-top: 120px;
+
+    .board-header {
+      padding: 16px 20px;
+
+      .title-wrap h1 {
+        font-size: 1.5rem;
+      }
+      .subtitle {
+        margin-left: 0;
       }
     }
 
     .message-card {
-      width: calc(100% - 28px);
-      border-radius: 12px;
-      padding: 12px;
+      padding: 18px 20px;
 
-      .name-avatar {
-        width: 44px;
-        height: 44px;
+      .message-content {
+        padding-left: 0;
+        margin-top: 12px;
       }
     }
 
     .message-form {
-      left: 12px;
-      transform: none;
-      width: calc(100% - 24px);
-      bottom: 12px;
-      padding: 12px;
+      padding: 20px;
+
+      .form-row {
+        flex-direction: column;
+        align-items: stretch;
+
+        button {
+          width: 100%;
+        }
+        .hint{
+          display: none;
+        }
+      }
+    }
+
+    .feather-fall {
+      display: none;
     }
   }
+}
 
-  /* sr-only（无障碍隐藏） */
-  .sr-only {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
+/* ========== 动画定义 ========== */
+@keyframes float-up {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
   }
+  20% {
+    opacity: 0.2;
+  }
+  80% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-400px) scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes feather-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes glow-pulse {
+  0% {
+    opacity: 0.3;
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 0.8;
+    filter: blur(12px);
+  }
+}
+
+@keyframes glow-pulse-secondary {
+  0% {
+    opacity: 0.2;
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 0.5;
+    filter: blur(10px);
+  }
+}
+
+@keyframes border-flow {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+@keyframes flame-pulse {
+  0% {
+    opacity: 0.5;
+    filter: blur(8px);
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(15px);
+    transform: scale(1.2);
+  }
+}
+
+@keyframes feather-glow {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes spark-pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+@keyframes spark-float {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-5px, -8px) scale(1.8);
+    opacity: 1;
+  }
+}
+
+@keyframes segment-flicker {
+  0% {
+    opacity: 0.3;
+    height: 2px;
+  }
+  100% {
+    opacity: 1;
+    height: 6px;
+  }
+}
+
+@keyframes flame-border-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes smoke-rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.3;
+  }
+  80% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(-100px) scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes spark-rotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 </style>

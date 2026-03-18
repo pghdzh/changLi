@@ -1,12 +1,22 @@
 <template>
   <div class="chat-page">
     <div class="carousel carousel1" aria-hidden="true">
-      <img v-for="(src, idx) in randomFive" :key="idx" :src="src" class="carousel-image"
-        :class="{ active: idx === currentIndex }" />
+      <img
+        v-for="(src, idx) in randomFive"
+        :key="idx"
+        :src="src"
+        class="carousel-image"
+        :class="{ active: idx === currentIndex }"
+      />
     </div>
     <div class="carousel carousel2" aria-hidden="true">
-      <img v-for="(src, idx) in randomFive2" :key="idx" :src="src" class="carousel-image"
-        :class="{ active: idx === currentIndex }" />
+      <img
+        v-for="(src, idx) in randomFive2"
+        :key="idx"
+        :src="src"
+        class="carousel-image"
+        :class="{ active: idx === currentIndex }"
+      />
     </div>
 
     <div class="chat-container">
@@ -33,8 +43,15 @@
       </div>
       <div class="messages" ref="msgList">
         <transition-group name="msg" tag="div">
-          <div v-for="msg in chatLog" :key="msg.id"
-            :class="['message', msg.role, { error: msg.isError, egg: msg.isEgg }]">
+          <div
+            v-for="msg in chatLog"
+            :key="msg.id"
+            :class="[
+              'message',
+              msg.role,
+              { error: msg.isError, egg: msg.isEgg },
+            ]"
+          >
             <div class="avatar" :class="msg.role"></div>
             <div class="bubble">
               <div class="content" v-html="msg.text"></div>
@@ -55,22 +72,43 @@
       </div>
       <form class="input-area" @submit.prevent="sendMessage">
         <!-- 输入框改成 textarea -->
-        <textarea v-model="input" placeholder="向长离提问…" :disabled="loading" @keydown="handleKeydown" rows="1"></textarea>
+        <textarea
+          v-model="input"
+          placeholder="向长离提问…"
+          :disabled="loading"
+          @keydown="handleKeydown"
+          rows="1"
+        ></textarea>
 
         <!-- 清空按钮 -->
         <div class="btn-group">
-          <button type="button" class="clear-btn" @click="clearChat" :disabled="loading" title="清空对话">
+          <button
+            type="button"
+            class="clear-btn"
+            @click="clearChat"
+            :disabled="loading"
+            title="清空对话"
+          >
             ✖
           </button>
         </div>
 
         <!-- 发送按钮 -->
-        <button type="submit" class="send-btn" :disabled="!input.trim() || loading">
+        <button
+          type="submit"
+          class="send-btn"
+          :disabled="!input.trim() || loading"
+        >
           发送
         </button>
 
         <!-- 统计数据按钮 -->
-        <button type="button" class="Alldetail-btn" @click="showModal = true" title="查看统计">
+        <button
+          type="button"
+          class="Alldetail-btn"
+          @click="showModal = true"
+          title="查看统计"
+        >
           统计数据
         </button>
       </form>
@@ -242,30 +280,85 @@ const loading = ref(false);
 const msgList = ref<HTMLElement>();
 
 const encourageEggs = [
-  { file: "audio (0).mp3", text: "局之未终，焰之未熄。世事往往如此，输赢不过一息间。" },
+  {
+    file: "audio (0).mp3",
+    text: "局之未终，焰之未熄。世事往往如此，输赢不过一息间。",
+  },
   { file: "audio (1).mp3", text: "若心能如棋般冷静，是否就能不惧别离？" },
-  { file: "audio (2).mp3", text: "一子错落，风云便改。可叹世人，总爱求个‘若当初’。" },
-  { file: "audio (3).mp3", text: "命运是场漫长的棋，不在快与慢，而在落子的方向。" },
-  { file: "audio (4).mp3", text: "别太在意成败了，局外人眼中的输赢，从来都不重要。" },
+  {
+    file: "audio (2).mp3",
+    text: "一子错落，风云便改。可叹世人，总爱求个‘若当初’。",
+  },
+  {
+    file: "audio (3).mp3",
+    text: "命运是场漫长的棋，不在快与慢，而在落子的方向。",
+  },
+  {
+    file: "audio (4).mp3",
+    text: "别太在意成败了，局外人眼中的输赢，从来都不重要。",
+  },
   { file: "audio (5).mp3", text: "我不是在等你，只是……棋还没落完。" },
-  { file: "audio (6).mp3", text: "有时我会想——若当初那一步不落，也许局势就会不同吧。可惜啊，人生的棋盘从不容后悔，落子之后，只能微笑着看它燃成灰烬。" },
-  { file: "audio (7).mp3", text: "他们总说我看得太远，其实我只是怕看得太近。太近的情感，会让人忘了自己站在何处。" },
-  { file: "audio (8).mp3", text: "每一局的终点，都不只是输赢。有时，是人心的分岔口。" },
-  { file: "audio (9).mp3", text: "你也觉得风冷吗？……别怕，靠近一点。焰不会伤人，若你心够静。" },
-  { file: "audio (10).mp3", text: "你看着这片海时，会不会也觉得它像我？平静、无波，却藏着所有的光与深渊。" },
-  { file: "audio (11).mp3", text: "我不常劝人，但若是你，我希望你能稍微放慢脚步。连焰，也该学会休息。" },
-  { file: "audio (12).mp3", text: "我不是在等你，只是在听……听那一声久违的问候，能否再传回来。" },
-  { file: "audio (13).mp3", text: "有些话不该说出口，但今晚的风很温柔，也许能替我说完。" },
-  { file: "audio (14).mp3", text: "将自身置于棋局，才能算得更远。为此，我愿承受这离火焚身之苦。" },
-  { file: "audio (15).mp3", text: "因果循环，终有报偿。昔日种下的‘因’，便由你我今日来见证这‘果’。" },
-  { file: "audio (16).mp3", text: "即使燃尽己身，我也会为你照亮前方的长夜。这是我的承诺。" },
-  { file: "audio (17).mp3", text: "若有一天我不在了，愿这缕离火，能代替我继续温暖你。" },
-  { file: "audio (18).mp3", text: "当烈焰蒙蔽双眼，我反而能‘看’得更清。耳畔的潮音，指尖的颤动，还有……你的心意，都无比明晰。" },
-  { file: "audio (19).mp3", text: "偶尔，也会想放下棋局与筹谋，只静静看着庭前的花开花落。这样的时光，有你相伴，似乎也不坏。" },
-  { file: "audio (20).mp3", text: "若有一日，我真的燃尽己身，化作点点星火，但愿其中一簇，能永远温暖你的梦境。" }
+  {
+    file: "audio (6).mp3",
+    text: "有时我会想——若当初那一步不落，也许局势就会不同吧。可惜啊，人生的棋盘从不容后悔，落子之后，只能微笑着看它燃成灰烬。",
+  },
+  {
+    file: "audio (7).mp3",
+    text: "他们总说我看得太远，其实我只是怕看得太近。太近的情感，会让人忘了自己站在何处。",
+  },
+  {
+    file: "audio (8).mp3",
+    text: "每一局的终点，都不只是输赢。有时，是人心的分岔口。",
+  },
+  {
+    file: "audio (9).mp3",
+    text: "你也觉得风冷吗？……别怕，靠近一点。焰不会伤人，若你心够静。",
+  },
+  {
+    file: "audio (10).mp3",
+    text: "你看着这片海时，会不会也觉得它像我？平静、无波，却藏着所有的光与深渊。",
+  },
+  {
+    file: "audio (11).mp3",
+    text: "我不常劝人，但若是你，我希望你能稍微放慢脚步。连焰，也该学会休息。",
+  },
+  {
+    file: "audio (12).mp3",
+    text: "我不是在等你，只是在听……听那一声久违的问候，能否再传回来。",
+  },
+  {
+    file: "audio (13).mp3",
+    text: "有些话不该说出口，但今晚的风很温柔，也许能替我说完。",
+  },
+  {
+    file: "audio (14).mp3",
+    text: "将自身置于棋局，才能算得更远。为此，我愿承受这离火焚身之苦。",
+  },
+  {
+    file: "audio (15).mp3",
+    text: "因果循环，终有报偿。昔日种下的‘因’，便由你我今日来见证这‘果’。",
+  },
+  {
+    file: "audio (16).mp3",
+    text: "即使燃尽己身，我也会为你照亮前方的长夜。这是我的承诺。",
+  },
+  {
+    file: "audio (17).mp3",
+    text: "若有一天我不在了，愿这缕离火，能代替我继续温暖你。",
+  },
+  {
+    file: "audio (18).mp3",
+    text: "当烈焰蒙蔽双眼，我反而能‘看’得更清。耳畔的潮音，指尖的颤动，还有……你的心意，都无比明晰。",
+  },
+  {
+    file: "audio (19).mp3",
+    text: "偶尔，也会想放下棋局与筹谋，只静静看着庭前的花开花落。这样的时光，有你相伴，似乎也不坏。",
+  },
+  {
+    file: "audio (20).mp3",
+    text: "若有一日，我真的燃尽己身，化作点点星火，但愿其中一簇，能永远温暖你的梦境。",
+  },
 ];
-
-
 
 function playVoice(name: string) {
   const audio = new Audio(`/voice/${name}`);
@@ -274,7 +367,9 @@ function playVoice(name: string) {
 
 let lastEggTime = 0; // 记录最后一次触发彩蛋的时间戳
 let coolDownPeriod = 1 * 60 * 1000; // 冷却1分钟（毫秒）
-const triggeredVoices = new Set(JSON.parse(localStorage.getItem('triggeredVoices') || '[]'));
+const triggeredVoices = new Set(
+  JSON.parse(localStorage.getItem("triggeredVoices") || "[]")
+);
 
 async function sendMessage() {
   if (!input.value.trim()) return;
@@ -301,44 +396,50 @@ async function sendMessage() {
     //  throw new Error("测试错误");
     const history = chatLog.value.filter((msg) => !msg.isEgg && !msg.isError);
     const botReply = await sendMessageToHui(userText, history);
-    chatLog.value.push({
-      id: Date.now() + 1,
-      role: "bot",
-      text: botReply,
-    });
-
-    // —— 鼓励彩蛋：5% 概率触发 ——
-    if (Date.now() - lastEggTime > coolDownPeriod && Math.random() < 0.05) {
-      // 随机挑一条
-      let voiceId = Math.floor(Math.random() * encourageEggs.length)
-      const egg = encourageEggs[voiceId];
-
-      // 记录触发过的语音编号
-      triggeredVoices.add(voiceId || 0);
-
-      // 保存到 localStorage
-      localStorage.setItem('triggeredVoices', JSON.stringify([...triggeredVoices]));
-
-      // 播放对应语音（不带 .mp3 后缀）
-      playVoice(egg.file);
-      // 推入带标记的彩蛋消息
+    if (botReply == "error") {
       chatLog.value.push({
         id: Date.now() + 2,
         role: "bot",
-        text: `<p style="color: #d88873; font-style: italic;font-weight: bold">${egg.text}</p>`,
-        isEgg: true,
+        text: "API余额耗尽了，去b站提醒我充钱吧(或者清空试试)",
+        isError: true,
       });
-      lastEggTime = Date.now();
+    } else {
+      chatLog.value.push({
+        id: Date.now() + 1,
+        role: "bot",
+        text: botReply,
+      });
+
+      // —— 鼓励彩蛋：5% 概率触发 ——
+      if (Date.now() - lastEggTime > coolDownPeriod && Math.random() < 0.05) {
+        // 随机挑一条
+        let voiceId = Math.floor(Math.random() * encourageEggs.length);
+        const egg = encourageEggs[voiceId];
+
+        // 记录触发过的语音编号
+        triggeredVoices.add(voiceId || 0);
+
+        // 保存到 localStorage
+        localStorage.setItem(
+          "triggeredVoices",
+          JSON.stringify([...triggeredVoices])
+        );
+
+        // 播放对应语音（不带 .mp3 后缀）
+        playVoice(egg.file);
+        // 推入带标记的彩蛋消息
+        chatLog.value.push({
+          id: Date.now() + 2,
+          role: "bot",
+          text: `<p style="color: #d88873; font-style: italic;font-weight: bold">${egg.text}</p>`,
+          isEgg: true,
+        });
+        lastEggTime = Date.now();
+      }
+      // —— 彩蛋结束 ——
     }
-    // —— 彩蛋结束 ——
   } catch (e) {
     console.error(e);
-    chatLog.value.push({
-      id: Date.now() + 2,
-      role: "bot",
-      text: "API余额耗尽了，去b站提醒我充钱吧",
-      isError: true,
-    });
   } finally {
     loading.value = false;
     await scrollToBottom();
@@ -401,7 +502,6 @@ function handleBeforeUnload() {
   saveStats();
 }
 
-
 // ========== 背景图片导入与轮播 ==========
 const modules = import.meta.glob("@/assets/images1/*.{jpg,png,jpeg,webp}", {
   eager: true,
@@ -429,7 +529,6 @@ const randomFive2 = ref<string[]>(shuffle(allSrcs2).slice(0, 5));
 const currentIndex = ref(0);
 let Imgtimer: number | undefined;
 
-
 onMounted(() => {
   scrollToBottom();
   window.addEventListener("beforeunload", handleBeforeUnload);
@@ -446,15 +545,66 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
+/* ========== 长离主题色系 ========== */
+$deep-bg: #0a0503;
+$accent: #ff4f1e;
+$accent-2: #ff974f;
+$accent-3: #ffcb9a;
+$text-light: #f7e4d4;
+$glass-bg: rgba(10, 5, 3, 0.7);
+$flame-glow: rgba(255, 80, 20, 0.3);
+$border-glow: rgba(255, 140, 60, 0.2);
+
 .chat-page {
-  padding-top: 64px;
+  position: relative;
   min-height: 100vh;
-  /* 暗匣底 + 余焰微光 */
-  background: linear-gradient(135deg, #ca633e 0%, #a14b2b 100%);
-  color: #e8dccf;
-  display: flex;
-  flex-direction: column;
-  font-family: "Noto Sans SC", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  padding-top: 64px;
+  background: linear-gradient(135deg, #1a0c06 0%, #0a0503 50%, #1f0e07 100%);
+  color: $text-light;
+  font-family: "Noto Sans SC", "PingFang SC", "Helvetica Neue", Arial,
+    sans-serif;
+  overflow-x: hidden;
+
+  /* 棋盘背景装饰 */
+  &::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(
+        rgba(255, 80, 30, 0.02) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(255, 80, 30, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* 底部火焰光带 */
+  &::after {
+    content: "";
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      $accent,
+      $accent-2,
+      $accent,
+      transparent
+    );
+    filter: blur(6px);
+    opacity: 0.5;
+    animation: glow-pulse 4s infinite alternate;
+    z-index: 1;
+    pointer-events: none;
+  }
 
   .carousel {
     position: absolute;
@@ -466,10 +616,11 @@ onBeforeUnmount(() => {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg,
-          rgba(2, 8, 14, 0.15),
-          rgba(2, 8, 14, 0.25));
-      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        rgba(10, 5, 3, 0.3),
+        rgba(0, 0, 0, 0.45)
+      );
       z-index: 1;
     }
 
@@ -479,23 +630,22 @@ onBeforeUnmount(() => {
       height: 100%;
       object-fit: cover;
       opacity: 0;
-      filter: blur(0.8px) saturate(0.92);
+      filter: blur(1px) saturate(0.8);
+      transition: opacity 1.5s ease;
 
       &.active {
         opacity: 1;
-        transform: scale(1);
       }
     }
   }
 
-  /* 可在小屏使用第二组竖图，避免裁切失衡 */
   .carousel2 {
     display: none;
   }
 
-
-
   .chat-container {
+    position: relative;
+    z-index: 10;
     flex: 1;
     width: 900px;
     max-width: calc(100% - 32px);
@@ -503,150 +653,173 @@ onBeforeUnmount(() => {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    z-index: 9;
+    gap: 16px;
+  }
 
-    .stats-panel {
+  /* ========== 统计面板（毛玻璃火焰） ========== */
+  .stats-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: rgba(10, 5, 3, 0.6);
+    backdrop-filter: blur(12px);
+    padding: 12px 20px;
+    border-radius: 60px;
+    border: 1px solid $border-glow;
+    box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: rgba(255, 140, 60, 0.4);
+      box-shadow: 0 20px 40px -10px rgba(255, 100, 30, 0.2);
+    }
+
+    .stat-item {
       display: flex;
       align-items: center;
-      background: linear-gradient(180deg, rgba(18, 10, 8, 0.6), rgba(14, 8, 6, 0.56));
-      padding: 10px 16px;
-      border-radius: 12px;
-      font-size: 14px;
-      color: #e8dccf;
-      justify-content: space-around;
-      box-shadow: 0 10px 30px rgba(6, 4, 2, 0.7);
-      border: 1px solid rgba(255, 120, 70, 0.04);
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 40px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 140, 60, 0.1);
+      font-size: 0.9rem;
 
-      .stat-item {
-        .label {
-          font-size: 12px;
-          color: rgba(232, 220, 207, 0.76);
-          margin-bottom: 4px;
-        }
-
-        span {
-          color: #ffb890;
-          font-weight: 700;
-          font-size: 15px;
-          text-shadow: 0 0 6px rgba(255, 140, 90, 0.06);
-        }
+      span {
+        color: $accent-2;
+        font-weight: 700;
+        font-size: 1rem;
       }
+    }
 
-      .detail-btn {
-        background: transparent;
-        border: 1px solid rgba(255, 120, 70, 0.08);
-        border-radius: 6px;
-        color: #f0d8c2;
-        padding: 6px 12px;
-        cursor: pointer;
-        font-size: 13px;
-        transition: background 0.16s ease, box-shadow 0.16s ease, transform 0.12s;
+    .detail-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 140, 60, 0.3);
+      border-radius: 30px;
+      padding: 6px 16px;
+      color: $accent-2;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
 
-        &:hover {
-          background: rgba(255, 120, 70, 0.06);
-          box-shadow: 0 10px 26px rgba(255, 120, 70, 0.06);
-          transform: translateY(-2px);
-        }
-
-        &:focus-visible {
-          outline: none;
-          box-shadow: 0 0 0 6px rgba(255, 120, 70, 0.04);
-        }
+      &:hover {
+        background: rgba(255, 100, 30, 0.15);
+        border-color: $accent-2;
+        transform: translateY(-2px);
       }
     }
   }
 
+  /* ========== 消息列表 ========== */
   .messages {
     flex: 1;
     overflow-y: auto;
-    padding: 12px 0 120px;
-    overscroll-behavior: contain;
-    scroll-behavior: smooth;
+    padding: 12px 0 100px;
     max-height: 70vh;
+    scroll-behavior: smooth;
   }
 
-  /* 消息气泡（长离风格：暗匣纸质 + 余焰点缀） */
+  /* 消息气泡 */
   .message {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 14px;
-    color: #e8dccf;
+    margin-bottom: 16px;
+    animation: message-appear 0.3s ease;
 
     &.user {
       flex-direction: row-reverse;
     }
 
     &.error .bubble {
-      background: linear-gradient(180deg, rgba(76, 30, 26, 0.24), rgba(44, 18, 14, 0.18));
-      border: 1px solid rgba(180, 80, 90, 0.18);
-      box-shadow: 0 8px 26px rgba(120, 40, 40, 0.08);
+      background: linear-gradient(
+        135deg,
+        rgba(80, 30, 20, 0.6),
+        rgba(60, 20, 15, 0.6)
+      );
+      border-color: rgba(200, 80, 60, 0.3);
     }
 
     &.egg .bubble {
-      border: 1px solid rgba(255, 140, 90, 0.08);
-      box-shadow: 0 8px 26px rgba(255, 120, 70, 0.06);
-      transition: all 0.3s ease;
+      border-color: $accent-2;
+      box-shadow: 0 0 20px rgba(255, 180, 120, 0.2);
     }
 
     .avatar {
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      margin: 0 10px;
+      margin: 0 12px;
       background-size: cover;
       background-position: center;
       flex-shrink: 0;
-      box-shadow: 0 8px 26px rgba(8, 4, 2, 0.6);
-      z-index: 10;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      border: 2px solid rgba(255, 140, 60, 0.3);
+      transition: all 0.3s;
 
       &.bot {
-        /* 长离头像（写死路径名，按需替换） */
         background-image: url("@/assets/avatar/changli.png");
-        box-shadow: 0 10px 30px rgba(255, 120, 70, 0.08), inset 0 1px 0 rgba(255, 200, 160, 0.02);
-        border: 2px solid rgba(255, 255, 255, 0.06);
         transform: scaleX(-1);
+        filter: drop-shadow(0 0 10px rgba(255, 100, 30, 0.3));
       }
 
       &.user {
-        background: linear-gradient(180deg, #2b1208, #3a160a);
-        box-shadow: 0 8px 22px rgba(12, 6, 4, 0.6);
-        border: 1px solid rgba(255, 120, 70, 0.04);
+        background: linear-gradient(145deg, #3a1a0e, #2a120a);
+        border-color: rgba(255, 140, 60, 0.2);
+      }
+
+      &:hover {
+        transform: scale(1.05);
+        border-color: $accent-2;
       }
     }
 
     .bubble {
-      max-width: 78%;
-      background: linear-gradient(135deg, rgba(24, 14, 10, 0.96), rgba(18, 10, 8, 0.94));
-      border: 1px solid rgba(255, 120, 70, 0.04);
-      padding: 14px 16px;
-      border-radius: 16px;
+      max-width: 70%;
+      padding: 14px 18px;
+      border-radius: 24px;
+      background: rgba(15, 8, 4, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 140, 60, 0.15);
+      box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.6);
+      color: $text-light;
       line-height: 1.7;
-      word-break: break-word;
-      box-shadow: 0 10px 30px rgba(6, 4, 2, 0.6);
-      transition: box-shadow 0.18s, transform 0.12s, background 0.12s;
-      color: #f6e9db;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, $accent-2, transparent);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
 
       &:hover {
-        box-shadow: 0 16px 44px rgba(6, 4, 2, 0.7), 0 0 28px rgba(255, 120, 70, 0.04);
         transform: translateY(-2px);
+        border-color: rgba(255, 140, 60, 0.4);
+        box-shadow: 0 15px 30px -8px rgba(255, 100, 30, 0.2);
+
+        &::before {
+          opacity: 0.5;
+        }
       }
 
       &.loading {
-        color: rgba(246, 233, 219, 0.85);
-        opacity: 0.95;
+        color: #b99f8b;
       }
 
-      /* bot 消息视觉尾巴 */
+      /* 尾巴样式 */
       .message.bot & {
-        border-radius: 16px 16px 16px 6px;
-        background: linear-gradient(135deg, rgba(29, 16, 12, 0.98), rgba(25, 12, 10, 0.96));
+        border-radius: 24px 24px 24px 8px;
       }
 
-      /* user 消息右侧尾巴 */
       .message.user & {
-        border-radius: 16px 16px 6px 16px;
-        background: linear-gradient(135deg, rgba(25, 12, 10, 0.98), rgba(21, 10, 8, 0.96));
+        border-radius: 24px 24px 8px 24px;
       }
 
       .dots {
@@ -656,339 +829,311 @@ onBeforeUnmount(() => {
 
         .dot {
           opacity: 0;
-          font-size: 16px;
-          animation: blink 1s infinite;
+          font-size: 1.2rem;
+          animation: dot-blink 1.2s infinite;
 
           &:nth-child(1) {
             animation-delay: 0s;
           }
-
           &:nth-child(2) {
             animation-delay: 0.2s;
           }
-
           &:nth-child(3) {
             animation-delay: 0.4s;
-          }
-        }
-
-        @keyframes blink {
-
-          0%,
-          100% {
-            opacity: 0;
-          }
-
-          50% {
-            opacity: 1;
-            color: #ffb890;
           }
         }
       }
     }
   }
 
-  /* 输入区：匣式纸张 + 余焰按钮 */
+  /* ========== 输入区 ========== */
   .input-area {
-    position: sticky;
-    bottom: 12px;
+    width: 900px;
+    position: fixed;
+    bottom: 16px;
     display: flex;
     align-items: center;
-    background: linear-gradient(180deg, rgba(18, 10, 8, 0.96), rgba(14, 8, 6, 0.96));
-    backdrop-filter: blur(6px);
-    padding: 12px;
-    gap: 10px;
-    z-index: 30;
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(6, 4, 2, 0.72);
-    border: 1px solid rgba(255, 120, 70, 0.04);
+    gap: 12px;
+    background: rgba(10, 5, 3, 0.8);
+    backdrop-filter: blur(16px);
+    padding: 16px 20px;
+    border-radius: 60px;
+    border: 1px solid rgba(255, 140, 60, 0.25);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 30px $flame-glow;
+    transition: all 0.3s;
+
+    &:focus-within {
+      border-color: rgba(255, 140, 60, 0.5);
+      box-shadow: 0 20px 40px -10px rgba(255, 100, 30, 0.2);
+    }
 
     textarea {
       flex: 1;
-      padding: 10px 14px;
-      background: linear-gradient(180deg, rgba(22, 12, 8, 0.92), rgba(18, 10, 8, 0.9));
-      border: 1px solid rgba(255, 120, 70, 0.06);
-      color: #f6e9db;
-      font-size: 15px;
-      line-height: 1.45;
-      outline: none;
+      padding: 12px 18px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 140, 60, 0.2);
+      border-radius: 40px;
+      color: $text-light;
+      font-size: 1rem;
+      line-height: 1.5;
       resize: none;
-      overflow: hidden;
-      min-height: 48px;
-      max-height: 160px;
-      border-radius: 10px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
-      transition: box-shadow 0.12s, border-color 0.12s;
+      outline: none;
+      transition: all 0.3s;
 
       &::placeholder {
-        color: rgba(246, 232, 219, 0.28);
+        color: #b99f8b;
       }
 
       &:focus {
-        border-color: rgba(255, 140, 90, 0.26);
-        box-shadow: 0 0 0 6px rgba(255, 120, 70, 0.04);
+        border-color: $accent-2;
+        box-shadow: 0 0 0 3px rgba(255, 100, 30, 0.2);
+        background: rgba(20, 10, 5, 0.5);
       }
     }
 
     .btn-group {
       display: flex;
       gap: 8px;
+    }
 
-      button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        padding: 0;
-        border: none;
-        border-radius: 10px;
-        background: linear-gradient(180deg, rgba(20, 12, 8, 0.6), rgba(14, 8, 6, 0.6));
-        color: #f0d8c2;
-        cursor: pointer;
-        transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
-        box-shadow: 0 6px 18px rgba(6, 4, 2, 0.6);
+    .clear-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(30, 15, 8, 0.6);
+      border: 1px solid rgba(255, 140, 60, 0.2);
+      color: $accent-2;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s;
 
-        &:hover {
-          transform: translateY(-2px);
-          background: rgba(255, 120, 70, 0.04);
-        }
-
-        &:active {
-          transform: translateY(0);
-        }
-
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
+      &:hover:not(:disabled) {
+        background: rgba(50, 25, 15, 0.8);
+        border-color: $accent-2;
+        transform: rotate(90deg);
       }
 
-      .clear-btn {
-        font-size: 16px;
-        line-height: 1;
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
       }
     }
 
     .send-btn {
-      padding: 0 22px;
-      height: 40px;
+      padding: 0 32px;
+      height: 44px;
+      border-radius: 40px;
+      background: linear-gradient(145deg, $accent-2, $accent);
       border: none;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #ffb890 0%, #ff8a4a 100%);
-      color: #1a0804;
+      color: #1a0c06;
       font-weight: 700;
-      font-size: 15px;
+      font-size: 1rem;
       cursor: pointer;
-      box-shadow: 0 12px 36px rgba(255, 120, 70, 0.12);
-      transition: transform 0.12s, box-shadow 0.18s, filter 0.12s;
+      transition: all 0.3s;
+      box-shadow: 0 10px 25px rgba(255, 80, 20, 0.4);
 
       &:hover:not(:disabled) {
         transform: translateY(-3px);
-        box-shadow: 0 18px 46px rgba(255, 120, 70, 0.16);
-        filter: saturate(1.04);
+        box-shadow: 0 15px 35px rgba(255, 100, 30, 0.6);
+      }
+
+      &:active {
+        transform: translateY(-1px);
       }
 
       &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
-        box-shadow: none;
-      }
-
-      &:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 6px rgba(255, 120, 70, 0.06);
       }
     }
 
     .Alldetail-btn {
       display: none;
-      margin-left: 4px;
-      background: transparent;
-      border: 1px solid rgba(255, 120, 70, 0.06);
-      border-radius: 6px;
-      padding: 6px 10px;
-      color: #f0d8c2;
-      font-size: 13px;
+      padding: 0 16px;
+      height: 44px;
+      border-radius: 40px;
+      background: rgba(30, 15, 8, 0.6);
+      border: 1px solid rgba(255, 140, 60, 0.2);
+      color: $accent-2;
+      font-size: 0.9rem;
       cursor: pointer;
+      transition: all 0.3s;
 
       &:hover {
-        background: rgba(255, 120, 70, 0.04);
-        box-shadow: 0 6px 14px rgba(255, 120, 70, 0.04);
+        background: rgba(50, 25, 15, 0.8);
+        border-color: $accent-2;
       }
     }
   }
 
-  /* 模态框（暗匣纸页） */
+  /* ========== 统计弹窗 ========== */
   .modal-overlay {
     position: fixed;
     inset: 0;
-    background: linear-gradient(180deg, rgba(6, 4, 2, 0.78), rgba(8, 5, 3, 0.9));
+    z-index: 2000;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000;
-    padding: 16px;
+    background: rgba(10, 5, 3, 0.8);
+    backdrop-filter: blur(12px);
 
     .modal-content {
-      width: 360px;
-      max-width: 100%;
-      background: linear-gradient(180deg, rgba(18, 10, 8, 0.98), rgba(14, 8, 6, 0.98));
-      backdrop-filter: blur(6px);
-      border-radius: 14px;
-      padding: 20px;
-      color: #f5e6d9;
-      box-shadow: 0 18px 50px rgba(6, 4, 2, 0.8);
-      border: 1px solid rgba(255, 120, 70, 0.06);
-      animation: fadeInUp 220ms ease;
-
-      &::before {
-        content: "☆";
-        position: absolute;
-        left: 14px;
-        top: 10px;
-        font-size: 14px;
-        color: rgba(255, 140, 90, 0.12);
-        pointer-events: none;
-      }
+      width: 400px;
+      max-width: 90%;
+      background: rgba(15, 8, 4, 0.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 140, 60, 0.3);
+      border-radius: 32px;
+      padding: 28px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+      animation: modal-appear 0.3s ease;
 
       h3 {
-        margin: 0 0 12px 0;
-        font-size: 18px;
-        font-weight: 700;
+        margin: 0 0 20px;
+        font-size: 1.8rem;
+        background: linear-gradient(135deg, $accent-3, $accent-2);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
         text-align: center;
-        color: #ffb890;
-        padding-bottom: 8px;
-        border-bottom: 1px dashed rgba(255, 120, 70, 0.06);
       }
 
       .detail-list {
         list-style: none;
         padding: 0;
-        margin: 12px 0 18px;
-        line-height: 1.6;
-        font-size: 14px;
-        color: #e8dccf;
+        margin: 0 0 24px;
+        line-height: 2;
+        color: $text-light;
 
         li {
-          margin-bottom: 8px;
-          padding-left: 6px;
-
-          &:nth-child(odd) {
-            color: #d8c6b2;
-          }
+          padding: 4px 0;
+          border-bottom: 1px dashed rgba(255, 140, 60, 0.2);
 
           &:last-child {
-            margin-bottom: 0;
+            border-bottom: none;
           }
         }
       }
 
       .close-btn {
         display: block;
-        margin: 0 auto;
-        padding: 8px 20px;
-        background: linear-gradient(135deg, #ffb890, #ff8a4a);
-        color: #1a0804;
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(145deg, $accent-2, $accent);
         border: none;
-        border-radius: 10px;
-        cursor: pointer;
+        border-radius: 40px;
+        color: #1a0c06;
         font-weight: 700;
-        box-shadow: 0 12px 36px rgba(255, 120, 70, 0.12);
-        transition: transform 0.12s ease, box-shadow 0.14s ease;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
 
         &:hover {
           transform: translateY(-3px);
-          box-shadow: 0 18px 46px rgba(255, 120, 70, 0.16);
-        }
-
-        &:active {
-          transform: translateY(-1px) scale(0.996);
-        }
-
-        &:focus-visible {
-          outline: none;
-          box-shadow: 0 0 0 6px rgba(255, 120, 70, 0.06);
-        }
-      }
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(8px) scale(0.995);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .modal-content {
-        width: 100%;
-        padding: 16px;
-        border-radius: 12px;
-
-        h3 {
-          font-size: 16px;
-        }
-
-        .close-btn {
-          width: 100%;
-          padding: 10px 14px;
-          border-radius: 8px;
+          box-shadow: 0 15px 30px rgba(255, 100, 30, 0.5);
         }
       }
     }
   }
 
-  /* 响应式调整 */
+  /* ========== 动画 ========== */
+  @keyframes glow-pulse {
+    0% {
+      opacity: 0.3;
+      filter: blur(4px);
+    }
+    100% {
+      opacity: 0.8;
+      filter: blur(10px);
+    }
+  }
+
+  @keyframes message-appear {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes dot-blink {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes modal-appear {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* ========== 响应式 ========== */
+  @media (max-width: 1024px) {
+    .carousel1 {
+      display: none;
+    }
+    .carousel2 {
+      display: block;
+    }
+  }
+
   @media (max-width: 768px) {
     .chat-container {
       width: 100%;
       padding: 12px;
-      padding-top: 20px;
+    }
 
-      .carousel1 {
-        display: none;
-      }
-
-      .carousel2 {
-        display: block;
-      }
-
-      .stats-panel {
-        display: none;
-      }
+    .stats-panel {
+      display: none;
     }
 
     .bubble {
-      padding: 10px 12px;
-      font-size: 14px;
-      max-width: 86%;
+      max-width: 85%;
+      font-size: 0.9rem;
     }
 
     .avatar {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
+      margin: 0 8px;
     }
 
     .input-area {
-      flex-direction: column;
-      align-items: stretch;
-
+      flex-wrap: wrap;
+      gap: 8px;
+      width: 100%;
+      left: 0;
       textarea {
+        flex: 0 0 100%; /* 强制独占一行 */
         width: 100%;
+        margin-bottom: 4px;
+        display: block;
       }
 
-      button {
-        width: 100%;
+      .btn-group {
+        flex: 1;
+      }
+
+      .send-btn {
+        flex: 2;
       }
 
       .Alldetail-btn {
         display: block;
+        flex: 1;
       }
     }
   }
